@@ -24,6 +24,7 @@ Die App MUSS Accessability berücksichtigen. Wir halten uns an best practices f�
 ## Libraries
 
 - Coil für Images
+- KOIN für Dependency Injection
 - Multi Platform Markdown Renderer
 - KTOR
 - Corotuines
