@@ -14,6 +14,9 @@ the same commit.
 | Product | [Core product](product/core-product.md) | [Core product](product/core-product.html) | Accepted |
 | Domain | [Glossary](domain/glossary.md) | [Glossary](domain/glossary.html) | Accepted |
 | Decision | [ADR-0001: v1 product foundation](adr/0001-v1-product-foundation.md) | [ADR-0001](adr/0001-v1-product-foundation.html) | Accepted |
+| Engineering | [Build and quality contract](engineering/build-and-quality.md) | [Build and quality contract](engineering/build-and-quality.html) | Accepted |
+| Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
+| Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |
 
 ## Status vocabulary
 
@@ -26,3 +29,8 @@ the same commit.
 Requirements use stable IDs (`PRD-*`). Open decisions use stable IDs (`Q-*`).
 Tests, issues, ADRs, and commits should reference those IDs rather than copying
 requirements into new, potentially divergent prose.
+
+HTML may reorder or condense a Markdown source, but it must preserve every
+normative rule, stable ID, command, path, status, risk, consequence, and graph
+edge. Graphs require a text or table equivalent. Run
+`./scripts/verify-doc-pairs.sh`; semantic parity remains a review responsibility.
