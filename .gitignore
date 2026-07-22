@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# IDE-local state
+.idea/
+
 # Log file
 *.log
 
@@ -12,6 +15,7 @@
 
 # Package Files #
 *.jar
+!reader/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
