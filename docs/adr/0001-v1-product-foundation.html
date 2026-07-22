@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · ADR-0001</title>
+  <style>
+    :root{color-scheme:light dark;--accent:#4f7d62;--soft:color-mix(in srgb,Canvas 93%,var(--accent));--line:color-mix(in srgb,CanvasText 15%,transparent);--muted:color-mix(in srgb,CanvasText 62%,transparent)}
+    *{box-sizing:border-box}body{max-width:1060px;margin:auto;padding:46px 24px 90px;background:Canvas;color:CanvasText;font:16px/1.56 system-ui,sans-serif}h1{font-size:clamp(2.5rem,7vw,5.6rem);line-height:.94;letter-spacing:-.055em;margin:.14em 0 .3em}h2{margin-top:2.2em}.meta{font-size:.76rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}.lead{font-size:1.25rem;color:var(--muted);max-width:70ch}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:20px;padding:19px;background:var(--soft)}.card strong{display:block;font-size:1.12rem;margin-bottom:.35em}.num{color:var(--accent);font-weight:850;font-size:1.7rem}.tradeoff{border-left:5px solid var(--accent);padding:12px 18px;background:var(--soft)}li+li{margin-top:.45em}code{font-family:ui-monospace,monospace}
+  </style>
+</head>
+<body>
+  <p class="meta">ADR-0001 · Accepted · 22. Juli 2026</p><h1>Das Fundament für v1</h1>
+  <p class="lead">Acht Entscheidungen setzen einen klaren Produktmittelpunkt, bevor unabhängige Agents inkompatible Datenmodelle und UX-Annahmen bauen.</p>
+  <h2>Entscheidungen</h2><div class="grid">
+    <article class="card"><span class="num">01</span><strong>Neueinsteiger zuerst</strong>„Website folgen“ ist das mentale Modell; RSS/Atom bleibt sekundäre Fachsprache. OPML bleibt verfügbar.</article>
+    <article class="card"><span class="num">02</span><strong>Lokal, ohne Account</strong>Kein Cross-Device-Sync in v1. OPML transportiert Abos, nicht Lesezustände.</article>
+    <article class="card"><span class="num">03</span><strong>Mehrere Tags</strong>Subscriptions und Tags sind Many-to-many; „Ohne Tag“ ist eine berechnete Ansicht.</article>
+    <article class="card"><span class="num">04</span><strong>Saved ist Kern</strong>Gespeichert und gelesen sind zwei unabhängige Zustände.</article>
+    <article class="card"><span class="num">05</span><strong>Gelesen bei 80 %</strong>Viewport-Abdeckung des ausgelegten Inhalts, keine Zeitmessung.</article>
+    <article class="card"><span class="num">06</span><strong>Lesetag bei 80 %</strong>Dasselbe Ereignis zählt. Kurze Inhalte können sofort qualifizieren.</article>
+    <article class="card"><span class="num">07</span><strong>Kein Full-Content in v1</strong>Feed-Inhalt hochwertig rendern und Originalseite öffnen.</article>
+    <article class="card"><span class="num">08</span><strong>Notification-Backend später</strong>Servergestützte zeitnahe Meldungen frühestens v2; lokal nur Best Effort.</article>
+    <article class="card"><span class="num">09</span><strong>Flache Tags</strong>Keine Verschachtelung; ein Abo kann weiterhin mehrere Tags besitzen.</article>
+  </div>
+  <h2>Akzeptierte Kosten</h2><div class="tradeoff"><ul><li>Mehrere Geräte besitzen unabhängige Zustände.</li><li>OPML kann Multi-Tag-Zuordnung nur eingeschränkt transportieren.</li><li>Kurze Beiträge können beim Öffnen sofort als gelesen gelten und den Lesetag erfüllen.</li><li>Lokale Hintergrundmeldungen können verspätet sein oder ausfallen.</li><li>Gekürzte Feeds benötigen in v1 die Originalseite.</li></ul></div>
+  <h2>Guardrails für Agents</h2><ul><li>Keine Account-, Remote-Ownership- oder Sync-Felder „für später“ ergänzen.</li><li><code>Subscription ↔ Tag</code> als Many-to-many modellieren.</li><li>Tags bleiben flach; keine Parent-IDs oder Hierarchiepfade ergänzen.</li><li>Maximalen Lesefortschritt speichern; Layoutänderungen dürfen ihn nicht reduzieren.</li><li>Keine Verweildauer, Analytics oder versteckte Heuristik ergänzen.</li><li>Originalseiten nicht stillschweigend als Feed-Inhalt extrahieren.</li><li>Lokale Notifications nie als sofort oder garantiert vermarkten.</li></ul>
+  <h2>Nächste Entscheidungen</h2><p>Tag-Namensregeln und Löschen, genauer Notification-Scope sowie Verhalten nach manuellem „ungelesen“.</p>
+</body></html>

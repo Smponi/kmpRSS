@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS documentation</title>
+  <style>
+    :root { color-scheme: light dark; --accent:#4f7d62; --card:color-mix(in srgb, Canvas 94%, var(--accent)); --line:color-mix(in srgb, CanvasText 18%, transparent); }
+    body { margin:0 auto; max-width:980px; padding:48px 24px 80px; font:16px/1.55 system-ui,sans-serif; background:Canvas; color:CanvasText; }
+    h1 { font-size:clamp(2rem,6vw,4rem); line-height:1; letter-spacing:-.04em; margin:.2em 0; }
+    h2 { margin-top:2.2em; } .eyebrow { color:var(--accent); font-weight:750; text-transform:uppercase; letter-spacing:.12em; }
+    .lead { max-width:70ch; font-size:1.2rem; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+    .card { padding:20px; border:1px solid var(--line); border-radius:20px; background:var(--card); }
+    a { color:var(--accent); } code { font-family:ui-monospace,monospace; } li+li { margin-top:.45em; }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">Project memory</p>
+  <h1>kmpRSS documentation</h1>
+  <p class="lead">Markdown is the canonical source for agents. Each source has an information-dense HTML view for people and must be updated in the same commit.</p>
+  <h2>Current documents</h2>
+  <div class="grid">
+    <article class="card"><p class="eyebrow">Product · Accepted</p><h3>Core product</h3><p>Promise, principles, prioritised scope, quality bar and accepted product decisions.</p><a href="product/core-product.html">Open human view</a> · <a href="product/core-product.md">Markdown</a></article>
+    <article class="card"><p class="eyebrow">Domain · Accepted</p><h3>Glossary</h3><p>One shared language for subscriptions, feeds, tags, entries, reading and refresh.</p><a href="domain/glossary.html">Open human view</a> · <a href="domain/glossary.md">Markdown</a></article>
+    <article class="card"><p class="eyebrow">Decision · Accepted</p><h3>ADR-0001</h3><p>Binding v1 choices for audience, local ownership, tags, reading progress, extraction and notifications.</p><a href="adr/0001-v1-product-foundation.html">Open human view</a> · <a href="adr/0001-v1-product-foundation.md">Markdown</a></article>
+  </div>
+  <h2>Status vocabulary</h2>
+  <ul><li><strong>Proposed:</strong> working hypothesis awaiting an explicit decision.</li><li><strong>Accepted:</strong> binding until superseded.</li><li><strong>Deprecated:</strong> retained for history only.</li></ul>
+  <h2>Traceability</h2>
+  <p>Requirements use stable <code>PRD-*</code> IDs and open decisions use <code>Q-*</code> IDs. Tests, issues, ADRs and commits should reference these IDs.</p>
+</body>
+</html>

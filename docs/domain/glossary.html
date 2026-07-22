@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · Domain-Glossar</title>
+  <style>
+    :root { color-scheme:light dark; --accent:#4f7d62; --muted:color-mix(in srgb,CanvasText 62%,transparent); --line:color-mix(in srgb,CanvasText 16%,transparent); }
+    body { max-width:1180px; margin:auto; padding:42px 22px 80px; font:15px/1.5 system-ui,sans-serif; background:Canvas; color:CanvasText; }
+    h1 { font-size:clamp(2.2rem,6vw,4.5rem); letter-spacing:-.05em; margin:.1em 0; } .meta,.note { color:var(--muted); }
+    table { border-collapse:collapse; width:100%; margin-top:28px; } th,td { padding:13px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-size:.78rem; text-transform:uppercase; letter-spacing:.09em; } td:first-child { font-weight:750; white-space:nowrap; }
+    .note { border-left:4px solid var(--accent); padding:10px 16px; margin:28px 0; } code { font-family:ui-monospace,monospace; }
+    @media(max-width:700px){ table,tbody,tr,td { display:block; } thead { display:none; } tr { padding:12px 0; border-bottom:1px solid var(--line); } td { border:0; padding:4px 0; } td:first-child { font-size:1.15rem; } }
+  </style>
+</head>
+<body>
+  <p class="meta">DOMAIN · ACCEPTED · 22. JULI 2026</p><h1>Eine Sprache für kmpRSS</h1>
+  <p class="note">Diese Begriffe gelten in Produkttexten, Code, Tests, Datenbank und Dokumentation. UI-Bezeichnungen dürfen lokalisiert und vereinfacht werden.</p>
+  <table><thead><tr><th>Begriff</th><th>Bedeutung</th><th>Wichtige Abgrenzung</th></tr></thead><tbody>
+    <tr><td>Feed</td><td>Ein entferntes RSS-, Atom- oder anderes explizit unterstütztes Syndikationsdokument.</td><td>Nicht die persönliche Beziehung des Nutzers dazu.</td></tr>
+    <tr><td>Subscription</td><td>Das Abonnement eines Feeds samt persönlicher Einstellungen.</td><td>Das Löschen verändert den entfernten Feed nicht.</td></tr>
+    <tr><td>Entry</td><td>Ein normalisierter Eintrag aus einem Feed.</td><td>Kann Artikel, Audio, Video oder Kurzpost sein.</td></tr>
+    <tr><td>Originalseite</td><td>Das kanonische Webziel eines Eintrags.</td><td>Nicht Reader-Inhalt oder Feed-URL.</td></tr>
+    <tr><td>Tag</td><td>Vom Nutzer gepflegtes, flaches Label zur Organisation von Abonnements.</td><td>Ein Abo kann null bis viele Tags besitzen; Tags sind weder verschachtelt noch Ordner.</td></tr>
+    <tr><td>Ohne Tag</td><td>Berechnete Ansicht aller Abos ohne Tag.</td><td>Kein gespeicherter Tag und wird nicht als solcher exportiert.</td></tr>
+    <tr><td>Inbox</td><td>Ansicht der noch ungelesenen Einträge.</td><td>Keine eigene Kopie oder Besitzform.</td></tr>
+    <tr><td>Gespeichert</td><td>Dauerhafte Markierung zum späteren Wiederfinden.</td><td>Unabhängig von gelesen/ungelesen.</td></tr>
+    <tr><td>Lesefortschritt</td><td>Größter vom Viewport erreichter Anteil des ausgelegten Inhalts zwischen 0 und 1.</td><td>Inhaltsabdeckung, keine Verweildauer oder Analytics.</td></tr>
+    <tr><td>Lesetag</td><td>Lokaler Kalendertag, an dem mindestens ein Eintrag 80 % Lesefortschritt erreicht.</td><td>Kurze Einträge können sofort zählen; der Tag folgt der Gerätezeitzone.</td></tr>
+    <tr><td>Refresh</td><td>Abruf der Abos und Abgleich neuer/geänderter Einträge.</td><td>Ein Intervall garantiert keinen exakten Ausführungszeitpunkt.</td></tr>
+    <tr><td>Feed Discovery</td><td>Feeds aus einer geteilten/eingegebenen URL finden.</td><td>Kann null, einen oder mehrere Kandidaten ergeben.</td></tr>
+    <tr><td>OPML</td><td>Portables Format für Import/Export von Abos.</td><td>Enthält standardmäßig keine Lese- oder Speicherzustände.</td></tr>
+    <tr><td>Volltextextraktion</td><td>Lesbaren Inhalt aus der Originalseite ableiten.</td><td>Nicht dasselbe wie vom Feed gelieferten Inhalt rendern.</td></tr>
+  </tbody></table>
+  <h2>Regeln für die Implementierung</h2>
+  <ul><li>In der Domain-Schicht <code>Feed</code>, <code>Subscription</code>, <code>Tag</code> und <code>Entry</code> verwenden.</li><li><code>Subscription ↔ Tag</code> ist Many-to-many; keine separate Kategorie- oder Ordner-Entity einführen.</li><li>Tags bleiben flach; keine Parent-IDs, Pfade oder Hierarchie-Traversierung ergänzen.</li><li><code>read</code> und <code>saved</code> unabhängig modellieren.</li><li>Automatisch gelesen und Lesetag aus demselben 80-%-Ereignis ableiten; keine Zeitbedingung ergänzen.</li><li>Hintergrund-Refresh nie „Sync“ nennen; Sync bezeichnet späteren geräteübergreifenden Abgleich.</li></ul>
+</body></html>

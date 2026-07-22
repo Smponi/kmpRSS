@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · Core Product</title>
+  <style>
+    :root { color-scheme:light dark; --ink:CanvasText; --paper:Canvas; --accent:#4d7d61; --warm:#c67b49; --soft:color-mix(in srgb,Canvas 92%,var(--accent)); --line:color-mix(in srgb,CanvasText 15%,transparent); --muted:color-mix(in srgb,CanvasText 62%,transparent); }
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.56 system-ui,sans-serif} main{max-width:1180px;margin:auto;padding:48px 24px 100px}
+    h1{font-size:clamp(3rem,9vw,7.4rem);line-height:.88;letter-spacing:-.065em;margin:.12em 0 .3em;max-width:9ch} h2{font-size:clamp(1.7rem,4vw,3rem);letter-spacing:-.035em;margin:2em 0 .5em} h3{margin:1.7em 0 .5em}
+    .eyebrow{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--accent)} .lead{max-width:66ch;font-size:clamp(1.15rem,2.5vw,1.55rem);color:var(--muted)}
+    blockquote{margin:42px 0;padding:24px 28px;border-left:6px solid var(--accent);background:var(--soft);font-size:clamp(1.25rem,2.8vw,2rem);font-weight:650;letter-spacing:-.02em}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:22px;padding:20px;background:var(--soft)} .card h3{margin:.1em 0 .4em}.num{font-size:2.2rem;color:var(--accent);font-weight:850}
+    table{border-collapse:collapse;width:100%;margin:20px 0}th,td{padding:13px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{font-size:.74rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em}td:first-child{font-family:ui-monospace,monospace;font-weight:700;white-space:nowrap}
+    .pill{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--accent);color:white;font-size:.72rem;font-weight:800;letter-spacing:.08em}.p1{background:var(--warm)}.p2{background:var(--muted)}
+    .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:28px 0}.flow div{padding:22px;background:var(--soft);border-top:4px solid var(--accent)}.flow strong{display:block;font-size:1.2rem;margin-bottom:.4em}
+    .warning{padding:20px;border:1px solid var(--warm);border-radius:18px;background:color-mix(in srgb,Canvas 92%,var(--warm))}.questions td:first-child{color:var(--warm)} a{color:var(--accent)} li+li{margin-top:.45em}
+    @media(max-width:720px){.flow{grid-template-columns:1fr}table,tbody,tr,td{display:block}thead{display:none}tr{padding:12px 0;border-bottom:1px solid var(--line)}td{border:0;padding:4px 0}td:first-child{white-space:normal}}
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow">Product definition · Accepted · 22. Juli 2026</p><h1>Calm is a feature.</h1>
+  <p class="lead">kmpRSS macht aus bewusst gewählten Quellen das ruhigste, angenehmste Leseerlebnis auf dem Telefon — offline, zugänglich, privat und auf Android wie iOS wirklich zu Hause.</p>
+  <blockquote>Award-winning entsteht nicht aus der längsten Featureliste. Es entsteht in drei wiederholten Momenten: Quelle hinzufügen, Aufmerksamkeit sortieren, ungestört lesen.</blockquote>
+
+  <h2>Die drei Kernschleifen</h2><div class="flow"><div><strong>1 · Subscribe</strong>Website teilen oder einfügen → Quelle erkennen → Vorschau → Tags wählen → folgen. RSS-Wissen ist nicht nötig.</div><div><strong>2 · Triage</strong>Inbox oder Tag → scannen → lesen, speichern oder abhaken → Kontext behalten.</div><div><strong>3 · Read</strong>Sofort sauber rendern → bei 80 % als gelesen zählen → Original öffnen → Position wiederfinden.</div></div>
+
+  <h2>Produktprinzipien</h2><div class="grid">
+    <article class="card"><span class="num">01</span><h3>Lesen ist das Produkt</h3><p>Typografie, Medien, Code, Links und Wiederaufnahme sind Kernverhalten.</p></article>
+    <article class="card"><span class="num">02</span><h3>Ruhe statt Engagement</h3><p>Keine Schuld, Rankings, Ads oder algorithmischer Druck.</p></article>
+    <article class="card"><span class="num">03</span><h3>Nativ im Verhalten</h3><p>Gemeinsame Domain, aber Android und iOS dürfen bewusst anders aussehen und navigieren.</p></article>
+    <article class="card"><span class="num">04</span><h3>Local-first</h3><p>Gecachte Inhalte, Organisation und Zustände bleiben offline nützlich.</p></article>
+    <article class="card"><span class="num">05</span><h3>Accessible by design</h3><p>Screenreader, große Schrift, Kontrast, reduzierte Bewegung und Bedienalternativen sind Release-Kriterien.</p></article>
+    <article class="card"><span class="num">06</span><h3>Ehrlich &amp; portabel</h3><p>Keine falschen Refresh-Versprechen; OPML-Import und -Export ohne Account.</p></article>
+  </div>
+
+  <h2><span class="pill">P0</span> Unverzichtbarer Launch-Kern</h2>
+  <table><thead><tr><th>ID</th><th>Capability</th><th>Definition</th></tr></thead><tbody>
+    <tr><td>PRD-001</td><td>Einfach folgen</td><td>Neueinsteiger benötigen kein RSS-Wissen. Website-, Feed- und Share-URL sowie OPML; Vorschau; mehrere Kandidaten; handlungsfähige Fehler.</td></tr>
+    <tr><td>PRD-002</td><td>Robuste Ingestion</td><td>RSS/Atom normalisieren, sanitizen und deduplizieren; kaputte Feeds isolieren.</td></tr>
+    <tr><td>PRD-003</td><td>Exzellenter Reader</td><td>Semantische Inhalte, Bilder und Code; Textgröße/Abstand; Leseposition erhalten.</td></tr>
+    <tr><td>PRD-004</td><td>Originalseite</td><td>Plattformgerechtes Web-Erlebnis und verlustfreie Rückkehr.</td></tr>
+    <tr><td>PRD-005</td><td>Inbox &amp; Navigation</td><td>Alle ungelesenen, mehrere Tags und einzelne Feeds schnell und kontexttreu wechseln.</td></tr>
+    <tr><td>PRD-006</td><td>Gelesen &amp; Gespeichert</td><td>Unabhängige Zustände; automatisch gelesen bei 80 % Inhaltsabdeckung; Bulk-Aktionen mit Undo.</td></tr>
+    <tr><td>PRD-007</td><td>Feed-Verwaltung</td><td>Umbenennen, Tags hinzufügen/entfernen, Status prüfen, Refresh, Regel ändern, abbestellen.</td></tr>
+    <tr><td>PRD-008</td><td>Offline-first</td><td>Text und Zustände offline; klare Grenze bei netzabhängigen Aktionen.</td></tr>
+    <tr><td>PRD-009</td><td>Refresh</td><td>Manuell, bei veraltetem App-Start und OS-gesteuert im Hintergrund; Backoff und sichtbarer Status.</td></tr>
+    <tr><td>PRD-010</td><td>OPML</td><td>Idempotenter Import; Ordner auf Tags abbilden; valider Export innerhalb der OPML-Grenzen.</td></tr>
+    <tr><td>PRD-011</td><td>Accessibility &amp; Native UX</td><td>Kernwege mit VoiceOver/TalkBack und maximaler Textgröße; plattformspezifische Strukturen erlaubt.</td></tr>
+    <tr><td>PRD-012</td><td>Privacy &amp; Safety</td><td>Sanitisiertes HTML, weniger Tracking, kein Account-Zwang, Export und Löschung.</td></tr>
+  </tbody></table>
+
+  <h2><span class="pill p1">P1</span> Differenzierung</h2>
+  <div class="grid"><article class="card"><h3>Share Extension</h3><p>Website folgen oder Artikel speichern, mit leichtem Tag-Flow.</p></article><article class="card"><h3>Notification Rules</h3><p>Opt-in pro Feed, Digest und Ruhezeiten; v1 lokal als Best Effort, Backend frühestens v2.</p></article><article class="card"><h3>Reading Rhythm</h3><p>Ein Beitrag bei 80 % erfüllt den Lesetag; optional, nie beschämend oder nur farbcodiert.</p></article><article class="card"><h3>Search &amp; Filter</h3><p>Lokale Suche in Cache plus ungelesen, gespeichert, Datum, Feed und Tag.</p></article><article class="card"><h3>Full Content</h3><p>Nicht in v1: optionale Extraktion bei gekürzten Feeds erst später.</p></article><article class="card"><h3>Media</h3><p>Alt-Texte, Zoom, Datensparen und stabile Bildlayouts.</p></article></div>
+
+  <h2><span class="pill p2">P2</span> Bewusst später</h2><p>Cross-Device-Sync, Widgets, Smart Tags, Feed-Katalog, Highlights/Notizen, Fremdservice-/Self-hosted-Sync und servergestützte zeitnahe Notifications.</p>
+  <h2>Nicht v1</h2><ul><li>Social Network, Rankings, Werbung oder Engagement-Feed.</li><li>Garantierte exakte Polling-Intervalle oder sofortige lokale Notifications.</li><li>Desktop/Web, Podcast-Vollclient oder kompletter Browser.</li><li>Pixelidentische Android-/iOS-Oberflächen.</li><li>KI-Zusammenfassungen ohne explizites Trust-, Privacy-, Kosten- und Qualitätsmodell.</li></ul>
+
+  <h2>Refresh: ehrliches Versprechen</h2><div class="warning"><strong>„Alle 6 Stunden“ kann eine Präferenz, aber keine Garantie sein.</strong><p>Beide Plattformen verschieben Hintergrundarbeit abhängig von System- und Gerätezustand. Initial: manuell immer; beim Start wenn veraltet; energieeffizient im Hintergrund; letzter erfolgreicher Abruf sichtbar. Verlässlich zeitnahe Meldungen erfordern später einen Server-Watcher plus Push.</p><a href="https://developer.apple.com/documentation/BackgroundTasks/choosing-background-strategies-for-your-app">Apple</a> · <a href="https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work">Android</a></div>
+
+  <h2>80 % — eine gemeinsame Regel</h2><div class="warning"><strong>Lesestatus und Lesetag verwenden dasselbe Ereignis.</strong><p>Der größte vom Viewport erreichte Anteil des ausgelegten Artikelinhalts wird gespeichert. Ab 80 % wird der Beitrag gelesen und der lokale Kalendertag erfüllt. Ist ein kurzer Beitrag bereits beim Öffnen zu mindestens 80 % sichtbar, zählt er sofort. Es gibt bewusst keine zusätzliche Zeitmessung.</p></div>
+  <h2>Akzeptierte Entscheidungen</h2><table class="questions"><thead><tr><th>ID</th><th>Entscheidung</th><th>Konsequenz</th></tr></thead><tbody>
+    <tr><td>Q-1</td><td>Neueinsteiger zuerst.</td><td>„Website folgen“ statt RSS-Jargon; OPML bleibt für Profis.</td></tr>
+    <tr><td>Q-2</td><td>v1 lokal und ohne Account.</td><td>Kein Cloud-Sync; OPML transportiert keine Lesezustände.</td></tr>
+    <tr><td>Q-3</td><td>Mehrere Tags je Abo.</td><td>Many-to-many; „Ohne Tag“ ist berechnet.</td></tr>
+    <tr><td>Q-4</td><td>Gespeichert gehört in v1.</td><td>Unabhängig von gelesen/ungelesen.</td></tr>
+    <tr><td>Q-5</td><td>Automatisch gelesen bei 80 %.</td><td>Inhaltsabdeckung, nicht Öffnen oder Zeit.</td></tr>
+    <tr><td>Q-6</td><td>Lesetag ebenfalls bei 80 %.</td><td>Kurze Beiträge können sofort zählen.</td></tr>
+    <tr><td>Q-7</td><td>Keine Volltextextraktion in v1.</td><td>Feed-Inhalt plus Originalseite.</td></tr>
+    <tr><td>Q-8</td><td>Notification-Backend frühestens v2.</td><td>Initial lokal und nur Best Effort.</td></tr>
+    <tr><td>Q-9</td><td>Tags sind flach.</td><td>Keine Verschachtelung; ein Abo kann trotzdem mehrere Tags besitzen.</td></tr>
+  </tbody></table>
+  <p class="lead">Verbindlicher Decision Record: <a href="../adr/0001-v1-product-foundation.html">ADR-0001 · v1 product foundation</a>.</p>
+</main></body></html>
