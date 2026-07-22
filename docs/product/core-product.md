@@ -33,6 +33,9 @@ deciding what deserves attention, and reading without fighting the interface.
    promises an exact refresh or notification time that an OS cannot guarantee.
 7. **User-owned data.** Subscriptions can be imported and exported without an
    account. Destructive actions are clear and recoverable where reasonable.
+8. **Earn every onboarding step.** A newcomer reaches real app value quickly.
+   There is no mandatory marketing carousel, no upfront tour of future features,
+   and no optional preference or permission gate before the app can be used.
 
 ## The three core loops
 
@@ -72,6 +75,7 @@ restore position on return → update read state and optional reading-day progre
 | PRD-010 | OPML portability | Import maps folders to tags where representable. Export produces a valid subscription file and preserves multi-tag membership as far as OPML allows. Import is idempotent and reports duplicates/errors. |
 | PRD-011 | Accessibility and native platform UX | Critical journeys pass screen-reader, large-text, contrast, reduced-motion, orientation, and platform navigation checks. Android and iOS may use different components and structures. |
 | PRD-012 | Privacy and safety | Remote HTML is sanitised; dangerous schemes/content are blocked; tracking exposure is minimised; no account or analytics is required for core reading. Data can be deleted and exported. |
+| PRD-013 | Short, motivating onboarding | Onboarding explains the immediate value, then moves directly into following a first website or using the app. Every mandatory step is necessary for that next action; optional preferences, education, and permissions are skippable or requested later in context. |
 
 ### P1 — important differentiation after the core is excellent
 
@@ -120,6 +124,7 @@ These are targets to validate and refine, not yet release commitments.
 | Reliability | One malformed feed or entry is isolated and cannot abort the full refresh. Imports and repeated refreshes do not duplicate subscriptions/entries. |
 | Calm | Notifications default off; reading rhythm is optional; no feature relies only on colour; bulk actions are reversible. |
 | Ownership | OPML export and local-data deletion require no account or paid tier. |
+| Onboarding | A newcomer can reach the first meaningful app action without completing a marketing carousel, feature tour, permission sequence, or optional setup. |
 
 ## Refresh and notification constraint
 
