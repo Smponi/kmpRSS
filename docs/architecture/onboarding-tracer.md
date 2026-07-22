@@ -61,7 +61,8 @@ a Compose blur must never be labelled Liquid Glass.
 - This tracer has no decorative motion and no transparent material. Reduced Motion
   and Reduce Transparency therefore require no alternative animation or surface.
 - Shared behaviour is covered through `OnboardingModel` using the same interface as
-  callers. Android lint and both platform compilers cover implementation integration.
+  callers. Dedicated Android and iOS previews expose the actual controls for visual
+  inspection; Android lint and both platform compilers cover implementation integration.
 
 TalkBack, VoiceOver, switch/keyboard traversal, largest text, increased contrast,
 orientation and real-device target checks remain release gates. Compilation and

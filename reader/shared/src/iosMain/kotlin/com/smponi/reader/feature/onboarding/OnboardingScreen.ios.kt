@@ -36,9 +36,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
+import com.smponi.reader.core.designsystem.ReaderTheme
 
 /** Apple-native-in-spirit entry screen using Foundation controls rather than Material components. */
 @Composable
@@ -191,3 +193,14 @@ private fun AppleText(
 private val OnboardingContentMaxWidth = 520.dp
 private val WebsiteFieldHeight = 52.dp
 private val PrimaryActionHeight = 52.dp
+
+@Preview
+@Composable
+private fun IOSOnboardingPreview() {
+    ReaderTheme {
+        PlatformOnboardingScreen(
+            state = OnboardingState(website = "example.com"),
+            onAction = {},
+        )
+    }
+}

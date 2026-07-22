@@ -28,9 +28,11 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.smponi.reader.core.designsystem.FoundationSize
 import com.smponi.reader.core.designsystem.FoundationSpacing
+import com.smponi.reader.core.designsystem.ReaderTheme
 
 /** Material 3 Expressive entry screen for PRD-013. There is intentionally no page progression. */
 @Composable
@@ -106,3 +108,14 @@ internal actual fun PlatformOnboardingScreen(state: OnboardingState, onAction: (
 
 private val OnboardingContentMaxWidth = 560.dp
 private val PrimaryActionHeight = 56.dp
+
+@Preview
+@Composable
+private fun AndroidOnboardingPreview() {
+    ReaderTheme {
+        PlatformOnboardingScreen(
+            state = OnboardingState(website = "example.com"),
+            onAction = {},
+        )
+    }
+}
