@@ -89,7 +89,7 @@ class AppNavigation internal constructor(internal val navigation3BackStack: NavB
     }
 
     val backStack: List<AppNavKey>
-        get() = navigation3BackStack
+        get() = navigation3BackStack.toList()
 
     /** Applies one feature handoff using the deterministic application stack rules. */
     fun handle(event: AppNavigationEvent): AppNavigationResult = when (event) {
