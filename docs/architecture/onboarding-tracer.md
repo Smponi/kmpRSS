@@ -1,7 +1,7 @@
 # Onboarding tracer bullet
 
-- **Status:** Implemented tracer; downstream feed discovery and app shell remain open
-- **Last updated:** 2026-07-22
+- **Status:** Implemented tracer; feed discovery is connected and the app shell remains open
+- **Last updated:** 2026-07-23
 - **Scope:** First vertical slice for `PRD-013` and the onboarding portion of `PRD-011`
 - **Product constraints:** [Core product](../product/core-product.md),
   [ADR-0001](../adr/0001-v1-product-foundation.md)
@@ -31,10 +31,11 @@ stateDiagram-v2
 
 `OnboardingModel` is the shared behaviour module and its public interface is the
 test seam. It deliberately does not know navigation, persistence, feed formats or
-networking. `OnboardingFeature` adapts that model to two real renderers. The current
-`App` exposes both outcomes to its caller; the next tracer must connect those
-outcomes to feed discovery and the empty app shell rather than adding onboarding
-states.
+networking. `OnboardingFeature` adapts that model to two real renderers. `App`
+still exposes both outcomes to its caller and now consumes `FollowWebsite`
+internally through the [feed-discovery tracer](feed-discovery-tracer.md).
+`UseApp` remains an unconnected app-shell handoff rather than a new onboarding
+state.
 
 ## Platform ownership
 
@@ -74,10 +75,10 @@ No dependency was added. The slice uses the existing Compose Runtime, Foundation
 UI and Android Material 3 dependencies. It intentionally does not add navigation,
 persistence, feed parsing, animation, image loading or dependency injection.
 
-## Next smallest test-first slice
+## Connected downstream slice
 
-Start at `OnboardingOutcome.FollowWebsite`: write one public-interface test that a
-normal website string begins feed discovery and produces an actionable loading or
-result state, then connect the Android and iOS handoffs. In a separate cycle,
-connect `OnboardingOutcome.UseApp` to an accessible empty app shell. Do not add an
-intermediate onboarding confirmation screen.
+`OnboardingOutcome.FollowWebsite` now starts real feed discovery through the
+public feature interface and renders actionable loading, result, empty and failure
+states on Android and iOS. The next discovery behaviour belongs to its own feature
+slice; onboarding must not gain an intermediate confirmation screen. Separately,
+connect `OnboardingOutcome.UseApp` to an accessible empty app shell.
