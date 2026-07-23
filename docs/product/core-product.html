@@ -18,7 +18,7 @@
   </style>
 </head>
 <body><main>
-  <p class="eyebrow">Product definition · Accepted · 22. Juli 2026</p><h1>Calm is a feature.</h1>
+  <p class="eyebrow">Product definition · Accepted · 23. Juli 2026</p><h1>Calm is a feature.</h1>
   <p class="lead">kmpRSS macht aus bewusst gewählten Quellen das ruhigste, angenehmste Leseerlebnis auf dem Telefon — offline, zugänglich, privat und auf Android wie iOS wirklich zu Hause.</p>
   <blockquote>Award-winning entsteht nicht aus der längsten Featureliste. Es entsteht in drei wiederholten Momenten: Quelle hinzufügen, Aufmerksamkeit sortieren, ungestört lesen.</blockquote>
 
@@ -32,6 +32,7 @@
     <article class="card"><span class="num">05</span><h3>Accessible by design</h3><p>Screenreader, große Schrift, Kontrast, reduzierte Bewegung und Bedienalternativen sind Release-Kriterien.</p></article>
     <article class="card"><span class="num">06</span><h3>Ehrlich &amp; portabel</h3><p>Keine falschen Refresh-Versprechen; OPML-Import und -Export ohne Account.</p></article>
     <article class="card"><span class="num">07</span><h3>Jeder Onboarding-Schritt muss sich lohnen</h3><p>Direkt zum ersten echten Nutzen: kein Pflicht-Karussell, keine Tour durch spätere Features und keine optionalen Einstellungen oder Berechtigungen als Zugangshürde.</p></article>
+    <article class="card"><span class="num">08</span><h3>Von Anfang an lokalisierbar</h3><p>Vor Release kommt jeder sicht- oder hörbare kmpRSS-Text aus einer lokalisierbaren Ressource — auch Accessibility, Fehler, Notifications und Plattform-UI. Welche Sprachen ausgeliefert werden, ist eine separate Entscheidung.</p></article>
   </div>
 
   <h2><span class="pill">P0</span> Unverzichtbarer Launch-Kern</h2>
@@ -49,9 +50,11 @@
     <tr><td>PRD-011</td><td>Accessibility &amp; Native UX</td><td>Kernwege mit VoiceOver/TalkBack und maximaler Textgröße; plattformspezifische Strukturen erlaubt.</td></tr>
     <tr><td>PRD-012</td><td>Privacy &amp; Safety</td><td>Sanitisiertes HTML, weniger Tracking, kein Account-Zwang, Export und Löschung.</td></tr>
     <tr><td>PRD-013</td><td>Kurzes, motivierendes Onboarding</td><td>Den unmittelbaren Wert erklären und direkt zum ersten Website-Follow oder zur App-Nutzung führen. Nur notwendige Schritte sind verpflichtend; optionale Präferenzen, Erklärungen und Berechtigungen sind überspringbar oder kommen später im Kontext.</td></tr>
+    <tr><td>PRD-014</td><td>Lokalisierbare Release-Oberfläche</td><td>Vor Release kommt jeder kmpRSS-eigene sichtbare oder von Assistenztechnik angesagte Text aus Ressourcen: Copy, Labels/Hints, Fehler, Empty States, Mengen, Notifications, Shortcuts, Widgets und Host-UI. Harte Produktions-Strings blockieren den Release; Feed-Inhalt, URLs, interne IDs, Logs und Test-Fixtures sind keine App-Copy.</td></tr>
   </tbody></table>
 
   <h2>Onboarding-Qualitätsmaß</h2><div class="warning"><strong>Der erste echte App-Schritt kommt vor Tour, Berechtigungssequenz oder optionalem Setup.</strong><p>Neueinsteiger müssen kein Marketing-Karussell, keine Feature-Tour und keine optionalen Einstellungen abschließen, bevor sie eine Website folgen oder die App sinnvoll verwenden können.</p></div>
+  <h2>Lokalisierungs-Qualitätsmaß</h2><div class="warning"><strong>Hard-coded Production Copy ist ein Release-Blocker.</strong><p>Der Release-Audit findet keine kmpRSS-eigenen sichtbaren oder assistiven String-Literale in Produktions-UI. Base-Ressourcen sind vollständig; deklarierte Locales bestehen Key-, Placeholder-, Plural-, Langtext- und gegebenenfalls RTL-Prüfungen.</p></div>
 
   <h2><span class="pill p1">P1</span> Differenzierung</h2>
   <div class="grid"><article class="card"><h3>Share Extension</h3><p>Website folgen oder Artikel speichern, mit leichtem Tag-Flow.</p></article><article class="card"><h3>Notification Rules</h3><p>Opt-in pro Feed, Digest und Ruhezeiten; v1 lokal als Best Effort, Backend frühestens v2.</p></article><article class="card"><h3>Reading Rhythm</h3><p>Ein Beitrag bei 80 % erfüllt den Lesetag; optional, nie beschämend oder nur farbcodiert.</p></article><article class="card"><h3>Search &amp; Filter</h3><p>Lokale Suche in Cache plus ungelesen, gespeichert, Datum, Feed und Tag.</p></article><article class="card"><h3>Full Content</h3><p>Nicht in v1: optionale Extraktion bei gekürzten Feeds erst später.</p></article><article class="card"><h3>Media</h3><p>Alt-Texte, Zoom, Datensparen und stabile Bildlayouts.</p></article></div>
@@ -73,5 +76,5 @@
     <tr><td>Q-8</td><td>Notification-Backend frühestens v2.</td><td>Initial lokal und nur Best Effort.</td></tr>
     <tr><td>Q-9</td><td>Tags sind flach.</td><td>Keine Verschachtelung; ein Abo kann trotzdem mehrere Tags besitzen.</td></tr>
   </tbody></table>
-  <p class="lead">Verbindlicher Decision Record: <a href="../adr/0001-v1-product-foundation.html">ADR-0001 · v1 product foundation</a>.</p>
+  <p class="lead">Verbindliche Decision Records: <a href="../adr/0001-v1-product-foundation.html">ADR-0001 · v1 product foundation</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002 · localizable presentation and Navigation 3</a>.</p>
 </main></body></html>

@@ -1,13 +1,14 @@
 # Foundation playbook for agents
 
 - **Status:** Accepted
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-07-23
 - **Audience:** AI agents changing the `reader/` project
 
 ## Required reading
 
 Before architecture or feature work, read `Agents.md`, `docs/README.md`, the relevant product document and glossary,
-ADR-0001, [platform foundation](../architecture/platform-foundation.md), and
+ADR-0001, [ADR-0002](../adr/0002-localization-and-navigation.md),
+[platform foundation](../architecture/platform-foundation.md), and
 [build contract](../engineering/build-and-quality.md). Markdown is canonical.
 
 ## Placement decision
@@ -62,6 +63,23 @@ output, and preserve unrelated user changes.
 
 Do not add account/sync ownership fields, nested tags, full-content extraction, a notification backend, dwell-time read
 heuristics or Material-identical iOS UI. Reference accepted IDs instead of restating product decisions in code.
+
+## ADR-0002 guardrails
+
+- Use Navigation 3 for application navigation. Define `@Serializable`, typed,
+  unique keys under a sealed `AppNavKey : NavKey` contract.
+- Never introduce string routes, `Any` back stacks, mutable domain objects or
+  display copy in navigation keys.
+- Feature composables emit navigation callbacks/events; they do not receive a
+  navigator or mutate the back stack.
+- Android owns Navigation 3 `NavDisplay`; iOS renders the same Navigation 3
+  runtime state through its platform adapter and never creates a parallel route
+  model.
+- Add user-visible and assistive strings to localizable resources in the first
+  implementation slice. Shared copy uses Compose Multiplatform generated
+  resources; genuinely platform-only copy uses native localized resources.
+- Before release, perform the localization and navigation audits in the build
+  contract. Hard-coded production UI copy is a release blocker.
 
 ## Handoff evidence
 

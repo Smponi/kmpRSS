@@ -1,7 +1,7 @@
 # kmpRSS core product
 
 - **Status:** Accepted — product decisions recorded in [ADR-0001](../adr/0001-v1-product-foundation.md)
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-07-23
 - **Scope:** Product definition, not implementation architecture
 
 ## Product promise
@@ -36,6 +36,10 @@ deciding what deserves attention, and reading without fighting the interface.
 8. **Earn every onboarding step.** A newcomer reaches real app value quickly.
    There is no mandatory marketing carousel, no upfront tour of future features,
    and no optional preference or permission gate before the app can be used.
+9. **Localizable by construction.** Before release, every user-visible and
+   assistive string owned by kmpRSS comes from a localizable resource. Copy is
+   never trapped in a composable, navigation key, notification builder, or native
+   host. The set of languages shipped is a separate product decision.
 
 ## The three core loops
 
@@ -76,6 +80,7 @@ restore position on return → update read state and optional reading-day progre
 | PRD-011 | Accessibility and native platform UX | Critical journeys pass screen-reader, large-text, contrast, reduced-motion, orientation, and platform navigation checks. Android and iOS may use different components and structures. |
 | PRD-012 | Privacy and safety | Remote HTML is sanitised; dangerous schemes/content are blocked; tracking exposure is minimised; no account or analytics is required for core reading. Data can be deleted and exported. |
 | PRD-013 | Short, motivating onboarding | Onboarding explains the immediate value, then moves directly into following a first website or using the app. Every mandatory step is necessary for that next action; optional preferences, education, and permissions are skippable or requested later in context. |
+| PRD-014 | Localizable release surface | Before release, every kmpRSS-owned string visible or announced to a user is loaded from a localizable resource. This includes visible copy, accessibility labels/hints, errors, empty states, formatted quantities, notifications, shortcuts, widgets, and platform-host UI. Hard-coded production UI strings block release. Remote feed content, URLs, internal identifiers, logs, and test fixtures are not app copy. |
 
 ### P1 — important differentiation after the core is excellent
 
@@ -125,6 +130,7 @@ These are targets to validate and refine, not yet release commitments.
 | Calm | Notifications default off; reading rhythm is optional; no feature relies only on colour; bulk actions are reversible. |
 | Ownership | OPML export and local-data deletion require no account or paid tier. |
 | Onboarding | A newcomer can reach the first meaningful app action without completing a marketing carousel, feature tour, permission sequence, or optional setup. |
+| Localization | A release audit finds no kmpRSS-owned user-facing or assistive string literal in production UI code; base resources are complete and every declared locale passes key, placeholder, plural, long-text, and RTL checks where applicable. |
 
 ## Refresh and notification constraint
 
@@ -173,3 +179,6 @@ progress.
 | Q-9 | Tags are flat and cannot be nested. | Keep navigation and selection simple. A subscription can still have many tags; the domain has no parent tag or hierarchy path. |
 
 Source of record: [ADR-0001](../adr/0001-v1-product-foundation.md).
+
+Localization and navigation implementation constraints are recorded in
+[ADR-0002](../adr/0002-localization-and-navigation.md).

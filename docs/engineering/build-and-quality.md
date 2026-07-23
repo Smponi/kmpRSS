@@ -1,7 +1,7 @@
 # Build and quality contract
 
 - **Status:** Accepted
-- **Last updated:** 2026-07-22
+- **Last updated:** 2026-07-23
 - **Scope:** Reproducible local and CI verification for the `reader/` project
 
 ## Supported toolchain
@@ -77,6 +77,42 @@ cached. Job commands intentionally match this document rather than using placeho
 - iOS declares both `iosArm64()` and `iosSimulatorArm64()`. CI targets the generic simulator and disables signing.
 - `com.android.application` remains in the Android host module; the shared module uses AGP 9's
   `com.android.kotlin.multiplatform.library` plugin.
+
+## Mandatory pre-release gates
+
+These gates are binding even before they have a dedicated Gradle task. A release
+must not be cut on the basis of the build matrix alone.
+
+### Localization (`PRD-014`)
+
+- Inventory every kmpRSS-owned visible and assistive string in shared Compose,
+  Android-only code, iOS-only code, notifications, shortcuts and widgets.
+- Prove each string is loaded through a localizable resource. Shared UI uses
+  Compose Multiplatform resources with generated accessors; platform-only copy
+  uses the native platform resource mechanism.
+- Validate that the base locale has every referenced key and that every declared
+  locale has matching placeholders and plural shapes.
+- Exercise pseudo/long text and at least one RTL configuration where supported.
+- Search production sources for user-facing literals. Every match is either
+  moved to a resource or proven to be non-copy such as an identifier, URL, log,
+  test fixture, or remote feed content.
+- Store the audit output with release evidence. Any unresolved production UI
+  literal is a release blocker.
+
+The number of translated languages is a separate release decision. Resource
+externalization for all app-owned copy is mandatory regardless of that number.
+
+### Navigation 3 (`ADR-0002`)
+
+- Every destination uses an `@Serializable` concrete `AppNavKey : NavKey`; raw
+  string routes and `Any` back stacks fail review.
+- Tests prove key serialization round-trips, intended equality/uniqueness,
+  back-stack restoration, and exhaustive key-to-entry mapping.
+- Android verifies its Navigation 3 `NavDisplay` and back behaviour. iOS verifies
+  that its platform display adapter renders the same authoritative Navigation 3
+  runtime state instead of maintaining a second route graph.
+- Navigation keys contain stable identifiers only, never localized copy, mutable
+  domain objects, callbacks, or platform objects.
 
 ## Known limits
 

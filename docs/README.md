@@ -14,6 +14,7 @@ the same commit.
 | Product | [Core product](product/core-product.md) | [Core product](product/core-product.html) | Accepted |
 | Domain | [Glossary](domain/glossary.md) | [Glossary](domain/glossary.html) | Accepted |
 | Decision | [ADR-0001: v1 product foundation](adr/0001-v1-product-foundation.md) | [ADR-0001](adr/0001-v1-product-foundation.html) | Accepted |
+| Decision | [ADR-0002: localizable UI and Navigation 3](adr/0002-localization-and-navigation.md) | [ADR-0002](adr/0002-localization-and-navigation.html) | Accepted |
 | Engineering | [Build and quality contract](engineering/build-and-quality.md) | [Build and quality contract](engineering/build-and-quality.html) | Accepted |
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
 | Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented tracer |
