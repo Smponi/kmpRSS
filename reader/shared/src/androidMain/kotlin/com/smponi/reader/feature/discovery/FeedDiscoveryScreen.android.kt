@@ -3,6 +3,7 @@ package com.smponi.reader.feature.discovery
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,18 +12,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -38,6 +44,7 @@ import com.smponi.reader.core.designsystem.ReaderTheme
 @Composable
 internal actual fun PlatformFeedDiscoveryScreen(
     state: FeedDiscoveryState,
+    onCandidateSelected: (FeedCandidate) -> Unit,
     onRetry: () -> Unit,
     onEditWebsite: () -> Unit,
 ) {
@@ -65,9 +72,12 @@ internal actual fun PlatformFeedDiscoveryScreen(
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(FoundationSpacing.extraLarge))
-                DiscoveryBody(state)
+                DiscoveryBody(
+                    state = state,
+                    onCandidateSelected = onCandidateSelected,
+                )
                 Spacer(Modifier.height(FoundationSpacing.extraLarge))
-                if (state !is FeedDiscoveryState.Discovering) {
+                if (state is FeedDiscoveryState.NoFeeds || state is FeedDiscoveryState.Failed) {
                     Button(
                         onClick = onRetry,
                         modifier = Modifier
@@ -109,7 +119,7 @@ private fun DiscoveryHeading(state: FeedDiscoveryState) {
 }
 
 @Composable
-private fun DiscoveryBody(state: FeedDiscoveryState) {
+private fun DiscoveryBody(state: FeedDiscoveryState, onCandidateSelected: (FeedCandidate) -> Unit) {
     when (state) {
         is FeedDiscoveryState.Discovering -> {
             val reducedMotion =
@@ -131,14 +141,21 @@ private fun DiscoveryBody(state: FeedDiscoveryState) {
 
         is FeedDiscoveryState.Found -> {
             Text(
-                text = "Diese Quellen wurden von der Website angegeben:",
+                text = "Wähle den Feed, den du öffnen möchtest:",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(FoundationSpacing.medium))
-            Column(verticalArrangement = Arrangement.spacedBy(FoundationSpacing.small)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(FoundationSpacing.small),
+                modifier = Modifier.selectableGroup(),
+            ) {
                 state.candidates.forEach { candidate ->
-                    CandidateCard(candidate)
+                    CandidateCard(
+                        candidate = candidate,
+                        selected = candidate == state.selectedCandidate,
+                        onSelected = { onCandidateSelected(candidate) },
+                    )
                 }
             }
         }
@@ -162,23 +179,51 @@ private fun DiscoveryBody(state: FeedDiscoveryState) {
 }
 
 @Composable
-private fun CandidateCard(candidate: FeedCandidate) {
+private fun CandidateCard(candidate: FeedCandidate, selected: Boolean, onSelected: () -> Unit) {
+    val containerColor = if (selected) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            containerColor = containerColor,
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .sizeIn(minHeight = FoundationSize.minimumInteractiveTarget)
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = onSelected,
+            ),
     ) {
-        Column(modifier = Modifier.padding(FoundationSpacing.medium)) {
-            Text(
-                text = candidate.title,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(Modifier.height(FoundationSpacing.extraSmall))
-            Text(
-                text = candidate.url,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(FoundationSpacing.medium),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = candidate.title,
+                    color = contentColor,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(FoundationSpacing.extraSmall))
+                Text(
+                    text = candidate.url,
+                    color = contentColor,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            RadioButton(
+                selected = selected,
+                onClick = null,
+                modifier = Modifier.clearAndSetSemantics {},
             )
         }
     }
@@ -196,11 +241,20 @@ private fun AndroidFeedDiscoveryPreview() {
                 website = "https://example.com",
                 candidates = listOf(
                     FeedCandidate(
-                        title = "Example updates",
-                        url = "https://example.com/feed.xml",
+                        title = "Artikel",
+                        url = "https://example.com/articles.xml",
+                    ),
+                    FeedCandidate(
+                        title = "Notizen",
+                        url = "https://example.com/notes.xml",
                     ),
                 ),
+                selectedCandidate = FeedCandidate(
+                    title = "Notizen",
+                    url = "https://example.com/notes.xml",
+                ),
             ),
+            onCandidateSelected = {},
             onRetry = {},
             onEditWebsite = {},
         )

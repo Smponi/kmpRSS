@@ -7,6 +7,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
@@ -41,6 +45,7 @@ import com.smponi.reader.core.designsystem.ReaderTheme
 @Composable
 internal actual fun PlatformFeedDiscoveryScreen(
     state: FeedDiscoveryState,
+    onCandidateSelected: (FeedCandidate) -> Unit,
     onRetry: () -> Unit,
     onEditWebsite: () -> Unit,
 ) {
@@ -73,9 +78,12 @@ internal actual fun PlatformFeedDiscoveryScreen(
                 color = design.colors.onSurfaceVariant,
             )
             Spacer(Modifier.height(FoundationSpacing.extraLarge))
-            DiscoveryAppleBody(state)
+            DiscoveryAppleBody(
+                state = state,
+                onCandidateSelected = onCandidateSelected,
+            )
             Spacer(Modifier.height(FoundationSpacing.extraLarge))
-            if (state !is FeedDiscoveryState.Discovering) {
+            if (state is FeedDiscoveryState.NoFeeds || state is FeedDiscoveryState.Failed) {
                 DiscoveryAppleButton(
                     label = "Noch einmal suchen",
                     filled = true,
@@ -102,7 +110,7 @@ private fun FeedDiscoveryState.appleTitle(): String = when (this) {
 }
 
 @Composable
-private fun DiscoveryAppleBody(state: FeedDiscoveryState) {
+private fun DiscoveryAppleBody(state: FeedDiscoveryState, onCandidateSelected: (FeedCandidate) -> Unit) {
     val design = LocalReaderDesignSystem.current
     when (state) {
         is FeedDiscoveryState.Discovering ->
@@ -113,14 +121,21 @@ private fun DiscoveryAppleBody(state: FeedDiscoveryState) {
 
         is FeedDiscoveryState.Found -> {
             DiscoveryAppleText(
-                text = "Von dieser Website angeboten:",
+                text = "Wähle einen Feed zum Öffnen:",
                 style = design.typography.body,
                 color = design.colors.onSurfaceVariant,
             )
             Spacer(Modifier.height(FoundationSpacing.medium))
-            Column(verticalArrangement = Arrangement.spacedBy(FoundationSpacing.small)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(FoundationSpacing.small),
+                modifier = Modifier.selectableGroup(),
+            ) {
                 state.candidates.forEach { candidate ->
-                    DiscoveryAppleCandidate(candidate)
+                    DiscoveryAppleCandidate(
+                        candidate = candidate,
+                        selected = candidate == state.selectedCandidate,
+                        onSelected = { onCandidateSelected(candidate) },
+                    )
                 }
             }
         }
@@ -171,28 +186,50 @@ private fun DiscoveryAppleStatusCard(description: String, showStatusMark: Boolea
 }
 
 @Composable
-private fun DiscoveryAppleCandidate(candidate: FeedCandidate) {
+private fun DiscoveryAppleCandidate(candidate: FeedCandidate, selected: Boolean, onSelected: () -> Unit) {
     val design = LocalReaderDesignSystem.current
     val shape = RoundedCornerShape(18.dp)
-    Column(
+    val outline = if (selected) design.colors.accent else design.colors.outline
+    val outlineWidth = if (selected) 2.dp else 1.dp
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .sizeIn(minHeight = CandidateMinimumHeight)
             .clip(shape)
             .background(design.colors.surfaceContainer)
-            .border(1.dp, design.colors.outline, shape)
+            .border(outlineWidth, outline, shape)
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = onSelected,
+            )
+            .focusable()
             .padding(FoundationSpacing.medium),
     ) {
-        DiscoveryAppleText(
-            text = candidate.title,
-            style = design.typography.title,
-            color = design.colors.onSurface,
-        )
-        Spacer(Modifier.height(FoundationSpacing.extraSmall))
-        DiscoveryAppleText(
-            text = candidate.url,
-            style = design.typography.body,
-            color = design.colors.onSurfaceVariant,
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            DiscoveryAppleText(
+                text = candidate.title,
+                style = design.typography.title,
+                color = design.colors.onSurface,
+            )
+            Spacer(Modifier.height(FoundationSpacing.extraSmall))
+            DiscoveryAppleText(
+                text = candidate.url,
+                style = design.typography.body,
+                color = design.colors.onSurfaceVariant,
+            )
+        }
+        if (selected) {
+            DiscoveryAppleText(
+                text = "✓",
+                style = design.typography.title,
+                color = design.colors.accent,
+                modifier = Modifier
+                    .padding(start = FoundationSpacing.medium)
+                    .clearAndSetSemantics {},
+            )
+        }
     }
 }
 
@@ -244,6 +281,7 @@ private fun DiscoveryAppleText(
 
 private val DiscoveryContentMaxWidth = 560.dp
 private val PrimaryActionHeight = 52.dp
+private val CandidateMinimumHeight = 52.dp
 
 @Preview
 @Composable
@@ -254,11 +292,20 @@ private fun IOSFeedDiscoveryPreview() {
                 website = "https://example.com",
                 candidates = listOf(
                     FeedCandidate(
-                        title = "Example updates",
-                        url = "https://example.com/feed.xml",
+                        title = "Artikel",
+                        url = "https://example.com/articles.xml",
+                    ),
+                    FeedCandidate(
+                        title = "Notizen",
+                        url = "https://example.com/notes.xml",
                     ),
                 ),
+                selectedCandidate = FeedCandidate(
+                    title = "Notizen",
+                    url = "https://example.com/notes.xml",
+                ),
             ),
+            onCandidateSelected = {},
             onRetry = {},
             onEditWebsite = {},
         )

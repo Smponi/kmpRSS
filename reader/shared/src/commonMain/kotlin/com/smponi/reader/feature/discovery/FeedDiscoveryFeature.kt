@@ -17,7 +17,11 @@ import com.smponi.reader.feature.onboarding.OnboardingOutcome
  * navigation framework.
  */
 @Composable
-fun FeedDiscoveryFeature(outcome: OnboardingOutcome.FollowWebsite, onEditWebsite: () -> Unit) {
+fun FeedDiscoveryFeature(
+    outcome: OnboardingOutcome.FollowWebsite,
+    onCandidateSelected: (FeedDiscoveryOutcome.CandidateSelected) -> Unit,
+    onEditWebsite: () -> Unit,
+) {
     val discovery = remember(outcome) { beginFeedDiscovery(outcome) }
     var state by remember(discovery) { mutableStateOf(discovery.state) }
     var attempt by remember(discovery) { mutableIntStateOf(0) }
@@ -33,6 +37,12 @@ fun FeedDiscoveryFeature(outcome: OnboardingOutcome.FollowWebsite, onEditWebsite
 
     PlatformFeedDiscoveryScreen(
         state = state,
+        onCandidateSelected = { candidate ->
+            discovery.select(candidate)?.let { selection ->
+                state = discovery.state
+                onCandidateSelected(selection)
+            }
+        },
         onRetry = { attempt += 1 },
         onEditWebsite = onEditWebsite,
     )
@@ -42,6 +52,7 @@ fun FeedDiscoveryFeature(outcome: OnboardingOutcome.FollowWebsite, onEditWebsite
 @Composable
 internal expect fun PlatformFeedDiscoveryScreen(
     state: FeedDiscoveryState,
+    onCandidateSelected: (FeedCandidate) -> Unit,
     onRetry: () -> Unit,
     onEditWebsite: () -> Unit,
 )
