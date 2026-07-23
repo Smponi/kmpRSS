@@ -23,10 +23,10 @@
   <p class="eyebrow">PRD-005 · PRD-011 · PRD-013 · PRD-014</p>
   <h1>Ein ruhiger Raum, bevor Inhalte da sind.</h1>
   <p class="lead">Implementierte, datenfreie Home-UI-Shell mit ehrlichen Empty-Statusflächen und genau einem ausführbaren Handoff: „Website folgen“.</p>
-  <p><strong>Status 23.07.2026:</strong> UI-Shell implementiert; Onboarding- und Discovery-Integration bleiben offen. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
+  <p><strong>Status 23.07.2026:</strong> UI-Shell und Navigation-3-Integration implementiert. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
 
-  <div class="flow" aria-label="Graph: Der spätere App-Caller öffnet eine Home-Session. Diese liefert Empty-State und HomeFeature an Android oder iOS. Website folgen erzeugt ein Outcome zurück zum Caller.">
-    <div class="node"><strong>Later app caller</strong><code>openHome()</code></div>
+  <div class="flow" aria-label="Graph: Der App-Navigation-Caller öffnet eine Home-Session. Diese liefert Empty-State und HomeFeature an Android oder iOS. Website folgen erzeugt ein Outcome zurück zum Caller.">
+    <div class="node"><strong>App navigation caller</strong><code>openHome()</code></div>
     <div class="node accent"><strong>Home session</strong><code>HomeState.Empty</code></div>
     <div class="node"><strong>HomeFeature</strong>Shared intent</div>
     <div class="node"><strong>Android · iOS</strong>Separate renderer</div>
@@ -35,18 +35,18 @@
 
   <h2>Öffentliches Interface und Graphkanten</h2>
   <table><thead><tr><th>Von</th><th>Nach</th><th>Vertrag</th></tr></thead><tbody>
-    <tr><td>Later app caller</td><td><code>openHome()</code></td><td>Shell explizit erzeugen; Navigation und Onboarding-State werden nicht abgeleitet.</td></tr>
+    <tr><td>App navigation caller</td><td><code>openHome()</code></td><td>Shell explizit erzeugen; Home leitet Navigation und Onboarding-State nicht ab.</td></tr>
     <tr><td><code>openHome()</code></td><td><code>Home</code></td><td>Nur wahrer Empty-State und eine Action→Outcome-Transition.</td></tr>
     <tr><td><code>Home</code></td><td><code>HomeFeature</code></td><td>Caller, Renderer und exakt ein Tracer nutzen dieselbe öffentliche Session.</td></tr>
     <tr><td><code>HomeFeature</code></td><td>Android/iOS</td><td>State und Intent teilen; Struktur und Chrome bleiben Plattformbesitz.</td></tr>
     <tr><td>Renderer</td><td><code>HomeAction.FollowWebsite</code></td><td>Nur „Website folgen“ ist interaktiv.</td></tr>
-    <tr><td><code>FollowWebsite</code></td><td>Caller</td><td><code>HomeOutcome.FollowWebsite</code> emittieren; keine Navigation in diesem Slice.</td></tr>
+    <tr><td><code>FollowWebsite</code></td><td>Caller</td><td><code>HomeOutcome.FollowWebsite</code> emittieren; die App-Navigation konsumiert es außerhalb von Home.</td></tr>
   </tbody></table>
   <p>Empty bedeutet: keine ungelesenen Inbox-Artikel, keine gespeicherten Artikel, keine gefolgten Websites und keine Tags. Diese Angebote sind strukturierte, nicht-interaktive Label-plus-Status-Flächen – ohne Button-, Link-, Selected- oder Disabled-Control-Role. Assistive Technologie erhält damit kein falsches Navigationsversprechen.</p>
 
   <h2>Scope und Navigation 3</h2>
-  <p class="must"><strong>Bewusst nicht verbunden:</strong> Keine Änderung an <code>App</code>, Onboarding oder Discovery; kein <code>AppNavKey</code>, String-Route, Back Stack oder Plattform-Routengraph. Ein Key ohne integriertes Ziel wäre spekulative Navigation.</p>
-  <p>Der spätere Integrations-Slice konsumiert <code>OnboardingOutcome.UseApp</code>, erzeugt oder nutzt den nötigen konkreten <code>@Serializable AppNavKey</code>, löst Home im exhaustiven Entry Provider auf und verarbeitet <code>HomeOutcome.FollowWebsite</code> als typed Event. Home erhält weiterhin weder Navigator noch Back Stack. Localized Copy, Callbacks und mutable State gehören niemals in Keys.</p>
+  <p class="must"><strong>Saubere Seam:</strong> Der ursprüngliche Home-Slice fügte vor einer realen Integration bewusst keinen Key oder spekulativen Graph hinzu. Die spätere <a href="app-navigation-integration.html">App-Navigation</a> besitzt nun den typed Stack.</p>
+  <p>Sie konsumiert <code>OnboardingOutcome.UseApp</code>, löst <code>@Serializable AppNavKey.Home</code> im exhaustiven Entry Provider auf und verarbeitet <code>HomeOutcome.FollowWebsite</code> als typed Event. Home erhält weiterhin weder Navigator noch Back Stack. Localized Copy, Callbacks und mutable State gehören niemals in Keys.</p>
 
   <h2>Design: gemeinsame Bedeutung, zwei echte UIs</h2>
   <p>Die visuelle These ist ein Leseraum vor der ersten Quelle. Eine einzige vertikale „Leserand“-Linie im Empty-State ist das charakteristische Element; sie steht für Reading-first statt für Dekoration. Der Rest bleibt Typografie, Raum und semantische Fläche.</p>
@@ -82,7 +82,7 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
   :shared:compileAndroidMain :shared:compileKotlinIosSimulatorArm64</code></pre>
   <p>Die kanonischen Repository-Gates stehen im <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
 
-  <h2>Nächster Integrations-Slice</h2>
-  <p><code>OnboardingOutcome.UseApp</code> mit Home verbinden und <code>HomeOutcome.FollowWebsite</code> über den akzeptierten Navigation-3-Key-Vertrag in den bestehenden Website-/Discovery-Weg führen. Dabei keine Feed-Daten, Subscription-Persistenz, Tags-Logik, Settings oder Preview-Funktionalität hinzufügen.</p>
+  <h2>Verbundene Integration</h2>
+  <p><code>OnboardingOutcome.UseApp</code> öffnet jetzt dieses Home. <code>HomeOutcome.FollowWebsite</code> öffnet den bestehenden Website-Einstieg; Use App poppt ohne Duplikat zum vorhandenen Home. Die Integration ergänzt keine Feed-Daten, Subscription-Persistenz, Tags-Logik, Settings oder Preview-Funktionalität.</p>
 </body>
 </html>
