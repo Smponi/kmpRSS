@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.MotionLevel
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.core.navigation.navigationDestinationHeading
 
 /** Material 3 discovery handoff for Android; it shares state meaning, not layout chrome, with iOS. */
 @Composable
@@ -114,7 +114,7 @@ private fun DiscoveryHeading(state: FeedDiscoveryState) {
     Text(
         text = title,
         style = MaterialTheme.typography.headlineLarge,
-        modifier = Modifier.semantics { heading() },
+        modifier = Modifier.navigationDestinationHeading(),
     )
 }
 

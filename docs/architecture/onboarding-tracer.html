@@ -23,7 +23,7 @@
   <p class="eyebrow">PRD-011 · PRD-013 · PRD-014 · Completed entry screen</p>
   <h1>One screen.<br>Two real exits.</h1>
   <p class="lead">Das Onboarding ist keine Sequenz. Nutzenversprechen, Website-Eingabe, „Website folgen“ und direkter App-Einstieg stehen sofort auf einem Screen bereit.</p>
-  <p><strong>Stand 23.07.2026:</strong> Der erste Screen ist funktional und visuell abgeschlossen; Feed Discovery ist verbunden, die App Shell bleibt offen. Grundlage: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
+  <p><strong>Stand 23.07.2026:</strong> Der erste Screen ist funktional, visuell abgeschlossen und mit Feed Discovery sowie Home integriert. Grundlage: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
 
   <div class="flow" aria-label="State graph: Start führt zu Entry. WebsiteChanged bleibt in Entry. FollowWebsite mit Inhalt führt zu Feed Discovery. UseApp führt zur App Shell.">
     <div class="node entry"><span class="eyebrow">Start + Entry</span><h3>Alles sofort sichtbar</h3><p>Website-Feld · Website folgen · Direkt zur App</p></div>
@@ -42,7 +42,7 @@
     <tr><td>Entry</td><td><code>FollowWebsite</code>, leer</td><td>Entry</td><td>Kein Outcome; <code>OnboardingState.canFollowWebsite</code> ist false und die Primäraktion bleibt disabled.</td></tr>
     <tr><td>Entry</td><td><code>UseApp</code></td><td>App Shell</td><td>Sofortiges Outcome ohne Setup.</td></tr>
   </tbody></table>
-  <p><code>OnboardingModel</code> ist das gemeinsame Verhaltensmodul und sein öffentliches Interface die Test-Seam. Es kennt weder Navigation, Persistenz, Feedformate noch Netzwerk. Das Model leitet <code>canFollowWebsite</code> aus dem editierbaren Wert ab, damit Caller und beide Renderer dieselbe Whitespace-Regel verwenden. <code>OnboardingFeature</code> adaptiert es an zwei echte Renderer. <code>App</code> reicht beide Outcomes an den Caller weiter und konsumiert <code>FollowWebsite</code> zusätzlich intern über den <a href="feed-discovery-tracer.html">Feed-Discovery-Tracer</a>. <code>UseApp</code> bleibt ein unverbundener App-Shell-Handoff statt eines neuen Onboarding-State.</p>
+  <p><code>OnboardingModel</code> ist das gemeinsame Verhaltensmodul und sein öffentliches Interface die Test-Seam. Es kennt weder Navigation, Persistenz, Feedformate noch Netzwerk. Das Model leitet <code>canFollowWebsite</code> aus dem editierbaren Wert ab, damit Caller und beide Renderer dieselbe Whitespace-Regel verwenden. <code>OnboardingFeature</code> adaptiert es an zwei echte Renderer. <code>App</code> reicht beide Outcomes an den Caller weiter; die <a href="app-navigation-integration.html">shared Navigation-3-Runtime</a> führt <code>FollowWebsite</code> in den bestehenden <a href="feed-discovery-tracer.html">Feed-Discovery-Tracer</a> und <code>UseApp</code> in das reale datenfreie Home. Home öffnet für Follow Website wieder denselben Einstieg; Onboarding bleibt ein Screen statt einer neuen Sequenz.</p>
 
   <h2>Plattformen bleiben Plattformen</h2>
   <div class="grid">
@@ -87,6 +87,6 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
 
   <h2>Scope &amp; verbundener Downstream-Slice</h2>
   <p>Der Slice aktiviert das im Compose-Versionssatz bereits gepinnte Compose-Multiplatform-Resources-Artefakt. Es besitzt den von ADR-0002 geforderten generierten, lokalisierbaren Resource-Zugriff und führt keine neue Drittanbieter-Technologie oder Version ein. Keine Navigation, Persistenz, Feed-Parser, Animation, Bildbibliothek oder DI.</p>
-  <p><code>OnboardingOutcome.FollowWebsite</code> startet jetzt echte Feed Discovery durch das öffentliche Feature-Interface und rendert handlungsfähige Loading-, Result-, Empty- und Failure-States auf Android und iOS. Das nächste Discovery-Verhalten gehört in einen eigenen Feature-Slice; Onboarding darf keinen Bestätigungs-Screen erhalten. Separat <code>UseApp</code> an eine accessible Empty App Shell anschließen.</p>
+  <p><code>OnboardingOutcome.FollowWebsite</code> startet echte Feed Discovery durch das öffentliche Feature-Interface und rendert handlungsfähige Loading-, Result-, Empty- und Failure-States auf Android und iOS. <code>UseApp</code> öffnet die reale accessible Home-Shell ohne verpflichtenden Onboarding-Backstep. Home Follow Website öffnet denselben Einstieg; Use App kehrt ohne Home-Duplikat zurück. Das nächste Discovery-Verhalten gehört in einen eigenen Feature-Slice; Onboarding darf keinen Bestätigungs-Screen erhalten.</p>
 </body>
 </html>

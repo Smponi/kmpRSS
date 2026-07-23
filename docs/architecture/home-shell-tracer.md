@@ -1,6 +1,6 @@
 # Home shell tracer
 
-- **Status:** Implemented UI shell; onboarding and feed-discovery integration remain open
+- **Status:** Implemented UI shell and Navigation 3 integration
 - **Last updated:** 2026-07-23
 - **Scope:** Data-free Home shell for `PRD-005`, `PRD-011`, `PRD-013` and `PRD-014`
 - **Product constraints:** [Core product](../product/core-product.md),
@@ -9,14 +9,14 @@
 
 ## Public feature interface
 
-`openHome()` creates a `Home` session in `HomeState.Empty`. The later app caller
+`openHome()` creates a `Home` session in `HomeState.Empty`. The app caller
 passes that same public session to `HomeFeature` and receives
 `HomeOutcome.FollowWebsite` when the person chooses the only executable action.
 The same session interface is the test seam.
 
 ```mermaid
 flowchart LR
-    C[Later app caller] --> O[openHome]
+    C[App navigation caller] --> O[openHome]
     O --> H[Home session]
     H --> S[HomeState.Empty]
     H --> F[HomeFeature]
@@ -30,12 +30,12 @@ flowchart LR
 
 | From | To | Contract |
 |---|---|---|
-| Later app caller | `openHome()` | Create the shell explicitly; no navigation or onboarding state is inferred. |
+| App navigation caller | `openHome()` | Create the shell explicitly; no navigation or onboarding state is inferred by Home. |
 | `openHome()` | `Home` | Expose only the truthful empty state and one action-to-outcome transition. |
 | `Home` | `HomeFeature` | The caller and renderer use the same public session tested by the tracer. |
 | `HomeFeature` | Android/iOS renderer | Share state and intent while each platform owns structure and chrome. |
 | Both renderers | `HomeAction.FollowWebsite` | Only “Website folgen” is interactive. |
-| `FollowWebsite` | Caller | Emit `HomeOutcome.FollowWebsite`; this slice does not consume or navigate from it. |
+| `FollowWebsite` | Caller | Emit `HomeOutcome.FollowWebsite`; the app-navigation integration consumes it outside Home. |
 
 `HomeState.Empty` means Inbox has no unread entries, Saved has no saved entries,
 and there are no followed websites or tags. Those areas are structured,
@@ -46,17 +46,13 @@ seam.
 
 ## Scope boundary and Navigation 3
 
-This slice does not edit `App`, onboarding or discovery and does not connect any
-route. It adds no `AppNavKey`, raw string route, back stack or platform route
-graph. That omission is intentional: a key without an integrated destination
-would be navigation built on speculation.
-
-The later integration slice must consume `OnboardingOutcome.UseApp`, create or
-reuse the required concrete `@Serializable AppNavKey`, render `HomeFeature` from
-the exhaustive entry provider, and consume `HomeOutcome.FollowWebsite` through a
-typed event. The feature must continue to receive neither a navigator nor a back
-stack. Localized copy, callbacks and mutable state must not enter a navigation
-key.
+The original Home slice intentionally added no route before a real integration
+existed. The later [app-navigation integration](app-navigation-integration.md)
+now consumes `OnboardingOutcome.UseApp`, resolves the concrete
+`@Serializable AppNavKey.Home` through the exhaustive entry provider and consumes
+`HomeOutcome.FollowWebsite` as a typed event. Home still receives neither a
+navigator nor a back stack. Localized copy, callbacks and mutable state do not
+enter navigation keys.
 
 ## Design and platform ownership
 
@@ -136,10 +132,9 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
 Canonical repository gates remain defined in
 [Build and quality contract](../engineering/build-and-quality.md).
 
-## Next integration slice
+## Connected integration
 
-Connect `OnboardingOutcome.UseApp` to this Home feature and route
-`HomeOutcome.FollowWebsite` back into the existing website-entry/discovery
-journey using the accepted Navigation 3 key contract. Do not add feed data,
-subscription persistence, tag logic, settings or preview behaviour while making
-that connection.
+`OnboardingOutcome.UseApp` now opens this Home feature.
+`HomeOutcome.FollowWebsite` reopens the existing website entry, and Use App pops
+back to the existing Home without a duplicate. The integration adds no feed data,
+subscription persistence, tag logic, settings or preview behaviour.

@@ -1,6 +1,6 @@
 # Onboarding tracer bullet
 
-- **Status:** Implemented and visually completed entry screen; feed discovery is connected and the app shell remains open
+- **Status:** Implemented and integrated with Feed Discovery and Home
 - **Last updated:** 2026-07-23
 - **Scope:** Completed first onboarding screen for `PRD-013`, `PRD-011` and `PRD-014`
 - **Product constraints:** [Core product](../product/core-product.md),
@@ -35,9 +35,12 @@ test seam. It deliberately does not know navigation, persistence, feed formats o
 networking. The model derives `canFollowWebsite` from the editable value so the
 caller and both renderers share one whitespace rule instead of reimplementing
 action availability. `OnboardingFeature` adapts that model to two real renderers.
-`App` still exposes both outcomes to its caller and consumes `FollowWebsite`
-internally through the [feed-discovery tracer](feed-discovery-tracer.md). `UseApp`
-remains an unconnected app-shell handoff rather than a new onboarding state.
+`App` still exposes both outcomes to its caller. Its
+[shared Navigation 3 runtime](app-navigation-integration.md) consumes
+`FollowWebsite` into the existing [feed-discovery tracer](feed-discovery-tracer.md)
+and consumes `UseApp` into the real data-free Home feature. Returning from Home
+reuses this same website-entry screen; onboarding remains one screen rather than
+a new sequence.
 
 ## Platform ownership
 
@@ -127,8 +130,10 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
 
 ## Connected downstream slice
 
-`OnboardingOutcome.FollowWebsite` now starts real feed discovery through the
-public feature interface and renders actionable loading, result, empty and failure
-states on Android and iOS. The next discovery behaviour belongs to its own feature
-slice; onboarding must not gain an intermediate confirmation screen. Separately,
-connect `OnboardingOutcome.UseApp` to an accessible empty app shell.
+`OnboardingOutcome.FollowWebsite` starts real feed discovery through the public
+feature interface and renders actionable loading, result, empty and failure
+states on Android and iOS. `OnboardingOutcome.UseApp` now resolves to the real
+accessible Home shell without retaining onboarding as a mandatory back step.
+Home's Follow Website action reopens this same entry and Use App returns to the
+existing Home without a duplicate. The next discovery behaviour belongs to its
+own feature slice; onboarding must not gain an intermediate confirmation screen.

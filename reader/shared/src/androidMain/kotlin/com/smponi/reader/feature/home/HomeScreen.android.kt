@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.smponi.reader.core.designsystem.FoundationSize
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.core.navigation.navigationDestinationHeading
 import com.smponi.reader.resources.Res
 import com.smponi.reader.resources.home_empty_body
 import com.smponi.reader.resources.home_empty_title
@@ -135,7 +136,7 @@ private fun HomeHeader() {
         Text(
             text = stringResource(Res.string.home_intro),
             style = MaterialTheme.typography.displaySmall,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier.navigationDestinationHeading(),
         )
         Text(
             text = stringResource(Res.string.home_intro_supporting),

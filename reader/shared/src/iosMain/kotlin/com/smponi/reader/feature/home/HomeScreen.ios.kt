@@ -41,6 +41,7 @@ import com.smponi.reader.core.designsystem.FoundationSize
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.core.navigation.navigationDestinationHeading
 import com.smponi.reader.resources.Res
 import com.smponi.reader.resources.home_empty_body
 import com.smponi.reader.resources.home_empty_title
@@ -147,7 +148,7 @@ private fun HomeHeader() {
             text = stringResource(Res.string.home_intro),
             style = design.typography.display,
             color = design.colors.onSurface,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier.navigationDestinationHeading(),
         )
         AppleText(
             text = stringResource(Res.string.home_intro_supporting),

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · App navigation integration</title>
+  <style>
+    :root { color-scheme:light dark; --accent:#34745f; --soft:color-mix(in srgb,Canvas 93%,var(--accent)); --line:color-mix(in srgb,CanvasText 18%,transparent); }
+    body { margin:0 auto; max-width:1160px; padding:42px 24px 76px; background:Canvas; color:CanvasText; font:15px/1.5 system-ui,sans-serif; }
+    h1 { margin:.12em 0; max-width:13ch; font-size:clamp(2.4rem,7vw,5.4rem); line-height:.92; letter-spacing:-.055em; }
+    h2 { margin-top:2.2em; } h3 { margin-bottom:.35em; } .eyebrow { color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:.11em; }
+    .lead { max-width:76ch; font-size:1.2rem; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
+    .card,.node { border:1px solid var(--line); border-radius:20px; padding:18px; background:var(--soft); }
+    .flow { display:grid; grid-template-columns:repeat(5,minmax(145px,1fr)); gap:10px; margin:24px 0; align-items:stretch; }
+    .node strong { display:block; margin-bottom:7px; } .accent { border:2px solid var(--accent); }
+    table { width:100%; border-collapse:collapse; } th,td { border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+    code { font-family:ui-monospace,monospace; } .must { border-left:5px solid var(--accent); padding:12px 16px; background:var(--soft); }
+    li+li { margin-top:.42em; } a { color:var(--accent); }
+    @media (max-width:850px) { .flow { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">PRD-001 · PRD-005 · PRD-011 · PRD-013 · PRD-014</p>
+  <h1>Ein Stack. Zwei native Wege.</h1>
+  <p class="lead"><code>AppNavigation</code> verbindet Onboarding, die datenfreie Home-Shell und bestehende Feed Discovery über einen autoritativen <code>NavBackStack&lt;AppNavKey&gt;</code> in <code>commonMain</code>.</p>
+  <p><strong>Status 23.07.2026:</strong> Integrations-Slice implementiert. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
+
+  <div class="flow" aria-label="Graph: Feature Outcomes werden zu AppNavigation Events. AppNavigation mutiert einen typed Navigation 3 Back Stack. Ein exhaustiver Provider rendert ihn mit Android NavDisplay oder dem iOS Apple Adapter. CandidateSelected bleibt extern.">
+    <div class="node"><strong>Features</strong>Onboarding · Home · Discovery</div>
+    <div class="node"><strong>Typed events</strong><code>AppNavigationEvent</code></div>
+    <div class="node accent"><strong>Shared runtime</strong><code>NavBackStack&lt;AppNavKey&gt;</code></div>
+    <div class="node"><strong>Exhaustive entry</strong>Kein zweites Routemodell</div>
+    <div class="node"><strong>Platform display</strong>Android <code>NavDisplay</code> · iOS Adapter</div>
+  </div>
+
+  <h2>Graphkanten und Interface</h2>
+  <table><thead><tr><th>Von</th><th>Nach</th><th>Vertrag</th></tr></thead><tbody>
+    <tr><td>Feature Outcome</td><td><code>AppNavigationEvent</code></td><td><code>App</code> adaptiert typed Outcomes; Features erhalten weder Navigator noch Stack.</td></tr>
+    <tr><td>Event</td><td><code>AppNavigation.handle</code></td><td>Ein tiefes Modul besitzt alle Stack-Mutationen und Root-Regeln.</td></tr>
+    <tr><td>Runtime</td><td><code>NavBackStack&lt;AppNavKey&gt;</code></td><td>Einzige Route-State-Machine; keine String-Routen und kein <code>Any</code>-Stack.</td></tr>
+    <tr><td>Stack</td><td>Shared Entry Provider</td><td>Sealed, exhaustives <code>when</code>; kein paralleles Destination-Enum.</td></tr>
+    <tr><td>Provider</td><td>Android</td><td><code>NavDisplay</code> samt Android Back/Predictive Back.</td></tr>
+    <tr><td>Provider</td><td>iOS</td><td>Top-Entry desselben Stacks, iOS Back Dispatcher und opake Apple-nahe Back Bar.</td></tr>
+    <tr><td><code>CandidateSelected</code></td><td>Externer Caller</td><td>Keine Stack-Mutation und keine erfundene Feed Preview.</td></tr>
+  </tbody></table>
+
+  <h2>Keys und deterministische Stack-Regeln</h2>
+  <p><code>AppNavKey</code> ist ein sealed <code>NavKey</code>. <code>Onboarding</code> und <code>Home</code> sind individuell <code>@Serializable data object</code>; <code>FeedDiscovery(website)</code> ist eine individuell serialisierbare Data Class mit stabiler Website-Identität. Keys enthalten niemals Copy, mutable Feature-Daten, Callbacks, Services, Composables oder Plattformobjekte.</p>
+  <table><thead><tr><th>Event / Stack</th><th>Ergebnis</th><th>Bedeutung</th></tr></thead><tbody>
+    <tr><td>Erster Start</td><td><code>[Onboarding]</code></td><td>Eine direkte Einstiegsscreen.</td></tr>
+    <tr><td>Root Onboarding + UseApp</td><td><code>[Home]</code></td><td>Kein verpflichtender Onboarding-Backstep.</td></tr>
+    <tr><td><code>[Home]</code> + FollowWebsite</td><td><code>[Home, Onboarding]</code></td><td>Bestehenden Website-Einstieg wiederverwenden.</td></tr>
+    <tr><td>Onboarding + Website</td><td>Discovery-Key anhängen</td><td>Sofortige echte Discovery ohne Confirmation.</td></tr>
+    <tr><td>Discovery + Edit Website</td><td>Discovery poppen</td><td>Zum passenden Einstieg darunter.</td></tr>
+    <tr><td><code>[Home, Onboarding]</code> + UseApp</td><td><code>[Home]</code></td><td>Kein Home-Duplikat.</td></tr>
+    <tr><td>Back oberhalb Root</td><td>Ein Entry poppen</td><td>Gemeinsame hierarchische Bedeutung.</td></tr>
+    <tr><td>Back am Root</td><td><code>AtRoot</code>, unverändert</td><td>Plattform darf App verlassen/dismiss.</td></tr>
+    <tr><td>CandidateSelected</td><td><code>External</code>, unverändert</td><td>Feed Preview bleibt eigener Slice.</td></tr>
+  </tbody></table>
+  <p class="must">Ein leerer Initial-Stack ist ungültig. Edit Website poppt ausschließlich eine aktuelle Discovery. UseApp kürzt zu einem vorhandenen Home oder ersetzt sonst den Stack durch genau ein Home.</p>
+
+  <h2>Restoration und exhaustive Entries</h2>
+  <p><code>rememberAppNavigation()</code> serialisiert den typed Navigation-3-Stack auf beiden Plattformen mit expliziter <code>SavedStateConfiguration</code>. Das <code>SerializersModule</code> registriert alle drei <code>NavKey</code>-Subtypen und vermeidet den Android-only Reflection-Fallback. Tests beweisen Round Trips aller Keys, Equality/Uniqueness, Restoration eines Multi-Entry-Stacks und jede Kante des gemeinsamen Entry Providers.</p>
+
+  <h2>Zwei Plattformadapter</h2>
+  <div class="grid">
+    <section class="card"><p class="eyebrow">Android</p><h3>Navigation 3 UI</h3><p><code>PlatformAppNavigationHost.android.kt</code> übergibt den shared Stack an <code>NavDisplay</code>, liefert <code>NavEntry</code>s aus dem gemeinsamen Provider und sendet Back an die Runtime. Material-3-Expressive Feature-Renderer bleiben strukturell unverändert.</p></section>
+    <section class="card"><p class="eyebrow">iOS</p><h3>Apple Adapter</h3><p><code>PlatformAppNavigationHost.ios.kt</code> rendert <code>backStack.last()</code>, nutzt den iOS Back Dispatcher und zeigt bei vorhandenem Parent eine lokalisierte 52dp Back Action. Die Bar ist opak, semantisch und behauptet kein Liquid Glass.</p></section>
+    <section class="card"><p class="eyebrow">Accessibility</p><h3>Heading-Fokus</h3><p>Beim Eintritt erhält die erste sichtbare Überschrift Heading-Semantik und Fokus. „Zurück“ stammt aus Compose Resources. Root-Back wird nicht eingefangen.</p></section>
+  </div>
+  <p class="must"><strong>Manuelle Risiken:</strong> TalkBack-/VoiceOver-Announcement-Timing, iOS Edge-Gesture-Gefühl, Predictive-Back-Animation, Switch/Keyboard, größte Schrift, Orientierung und Device-Verhalten bleiben reale Release-Gates.</p>
+
+  <h2>Dependency-Vertrag</h2>
+  <table><thead><tr><th>Catalog Pin</th><th>Rolle</th></tr></thead><tbody>
+    <tr><td>Navigation 3 <code>1.1.4</code></td><td>KMP <code>NavKey</code>, <code>NavBackStack</code>, Restoration; Android-only <code>NavDisplay</code>.</td></tr>
+    <tr><td>Kotlin <code>2.4.10</code></td><td>Bereits gepinnter Serialization Compiler Plugin.</td></tr>
+    <tr><td>Compose Multiplatform <code>1.11.1</code></td><td><code>ui-backhandler</code> für iOS Platform Back.</td></tr>
+    <tr><td>kotlinx serialization JSON <code>1.11.0</code></td><td>Test-only Round-Trip-Evidence.</td></tr>
+  </tbody></table>
+  <p>Keine weitere Navigation-Library. Die Artefakte besitzen nicht-triviale Restoration-, System-Back- und Scene-Semantik, die ADR-0002 bewusst nicht lokal nachimplementiert.</p>
+
+  <h2>TDD-Evidence</h2>
+  <ol>
+    <li><strong>Ein initialer RED-Tracer:</strong> <code>onboarding and home share one website journey without duplicating home</code> scheiterte an fehlendem Interface, Event und Key.</li>
+    <li><strong>GREEN:</strong> Derselbe Test bewies First Start, Home, Website Entry, direkte Discovery, Edit Website und duplicate-free Home.</li>
+    <li>Spätere einzelne Zyklen ergänzten Candidate-Handoff, Root-safe Back, Serialization/Restoration/Identity und exhaustive Entry-Auflösung.</li>
+  </ol>
+  <pre><code>ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:testAndroidHostTest \
+  --tests 'com.smponi.reader.core.navigation.AppNavigationTest'
+ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:compileAndroidMain :shared:compileKotlinIosSimulatorArm64</code></pre>
+  <p>Alle kanonischen Gates stehen im <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
+
+  <h2>Scope-Grenze</h2>
+  <p>Keine Feed Preview, Subscription-Persistenz, Tags-Logik, Notifications, Settings, Permissions, Datenbank- oder Netzwerkänderung. Discovery bleibt unverändert real; <code>CandidateSelected</code> bleibt der Handoff für den nächsten Preview-Tracer. Keine neue Onboarding-Sequenz.</p>
+</body>
+</html>

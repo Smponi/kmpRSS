@@ -17,9 +17,10 @@ the same commit.
 | Decision | [ADR-0002: localizable UI and Navigation 3](adr/0002-localization-and-navigation.md) | [ADR-0002](adr/0002-localization-and-navigation.html) | Accepted |
 | Engineering | [Build and quality contract](engineering/build-and-quality.md) | [Build and quality contract](engineering/build-and-quality.html) | Accepted |
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
-| Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented tracer |
-| Architecture | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.md) | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.html) | Implemented selection handoff |
-| Architecture | [Home shell tracer](architecture/home-shell-tracer.md) | [Home shell tracer](architecture/home-shell-tracer.html) | Implemented UI shell |
+| Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented and integrated |
+| Architecture | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.md) | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.html) | Implemented and integrated |
+| Architecture | [Home shell tracer](architecture/home-shell-tracer.md) | [Home shell tracer](architecture/home-shell-tracer.html) | Implemented and integrated |
+| Architecture | [App navigation integration](architecture/app-navigation-integration.md) | [App navigation integration](architecture/app-navigation-integration.html) | Implemented integration slice |
 | Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |
 
 ## Status vocabulary

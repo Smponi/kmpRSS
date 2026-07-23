@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -40,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.core.navigation.navigationDestinationHeading
 
 /** Apple-native-in-spirit discovery handoff using opaque Foundation surfaces rather than Material components. */
 @Composable
@@ -69,7 +69,7 @@ internal actual fun PlatformFeedDiscoveryScreen(
                 text = state.appleTitle(),
                 style = design.typography.display,
                 color = design.colors.onSurface,
-                modifier = Modifier.semantics { heading() },
+                modifier = Modifier.navigationDestinationHeading(),
             )
             Spacer(Modifier.height(FoundationSpacing.small))
             DiscoveryAppleText(

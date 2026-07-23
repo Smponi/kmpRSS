@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.core.navigation.navigationDestinationHeading
 import com.smponi.reader.resources.Res
 import com.smponi.reader.resources.onboarding_ios_body
 import com.smponi.reader.resources.onboarding_ios_field_label
@@ -142,7 +143,7 @@ private fun OnboardingIntroduction(modifier: Modifier = Modifier) {
             text = stringResource(Res.string.onboarding_ios_headline),
             style = design.typography.display,
             color = design.colors.onSurface,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier.navigationDestinationHeading(),
         )
         AppleText(
             text = stringResource(Res.string.onboarding_ios_body),

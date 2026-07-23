@@ -1,6 +1,6 @@
 # Feed discovery and candidate-selection tracer
 
-- **Status:** Implemented candidate-selection handoff; feed preview and subscription remain open
+- **Status:** Implemented and navigation-integrated candidate-selection handoff; feed preview and subscription remain open
 - **Last updated:** 2026-07-23
 - **Scope:** Real discovery plus the smallest explicit candidate-selection handoff for `PRD-001` and `PRD-011`,
   connected directly from `PRD-013`
@@ -85,13 +85,13 @@ slices.
 
 ## App and platform ownership
 
-`App` observes the existing onboarding callback. It still forwards every
-`OnboardingOutcome` to its caller, while `FollowWebsite` additionally swaps the
-local content to `FeedDiscoveryFeature`. Explicit selection is forwarded through
-the separate `onFeedDiscoveryOutcome` callback. `UseApp` remains untouched and
-does not force an app shell into this slice. The feature owns only local discovery
-and selection state; no navigation framework or long-lived app graph was
-introduced.
+`App` observes the existing onboarding callback and sends `FollowWebsite` to the
+[shared Navigation 3 runtime](app-navigation-integration.md), which appends the
+typed Discovery key and renders `FeedDiscoveryFeature`. Edit Website pops that
+key to reveal the appropriate existing entry. Explicit selection still leaves
+the stack unchanged and is forwarded through the separate
+`onFeedDiscoveryOutcome` callback. The feature owns only local discovery and
+selection state and receives neither a navigator nor a back stack.
 
 | Source set | Ownership | Platform contract |
 |---|---|---|
@@ -137,8 +137,11 @@ networking that should not be reimplemented. `kotlinx-coroutines` `1.11.0` owns
 the cancellable asynchronous feature lifecycle and deterministic coroutine tests.
 
 No serialization library, HTML parser, navigation library, DI framework or
-feed-parser dependency was added. The small declaration scanner is local because
-it owns only the `<link>` attributes needed by this tracer.
+feed-parser dependency was added by the Discovery slice. The later app
+integration admits Navigation 3 separately and is documented in
+[App navigation integration](app-navigation-integration.md). The small
+declaration scanner is local because it owns only the `<link>` attributes needed
+by this tracer.
 
 ## TDD and verification evidence
 
@@ -179,4 +182,5 @@ slice: fetch and show only enough feed identity and recent-entry evidence for th
 person to decide whether to follow it, with actionable failure recovery. Do not
 persist a subscription, add tags or notifications, build a complete ingestion
 pipeline or introduce a full navigation graph in advance.
-`OnboardingOutcome.UseApp` remains a separate accessible-empty-shell slice.
+`OnboardingOutcome.UseApp` is now connected to the accessible Home shell by the
+separate app-navigation integration.
