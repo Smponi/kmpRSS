@@ -1,7 +1,10 @@
 package com.smponi.reader.feature.onboarding
 
-/** The editable information shown by the one-screen onboarding experience. */
-data class OnboardingState(val website: String = "")
+/** The editable information and derived action availability shown by the one-screen onboarding experience. */
+data class OnboardingState(val website: String = "") {
+    val canFollowWebsite: Boolean
+        get() = website.isNotBlank()
+}
 
 /** User intent accepted by [OnboardingModel]. */
 sealed interface OnboardingAction {

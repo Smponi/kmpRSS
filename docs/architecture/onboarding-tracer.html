@@ -20,10 +20,10 @@
   </style>
 </head>
 <body>
-  <p class="eyebrow">PRD-013 · Implemented tracer</p>
+  <p class="eyebrow">PRD-011 · PRD-013 · PRD-014 · Completed entry screen</p>
   <h1>One screen.<br>Two real exits.</h1>
   <p class="lead">Das Onboarding ist keine Sequenz. Nutzenversprechen, Website-Eingabe, „Website folgen“ und direkter App-Einstieg stehen sofort auf einem Screen bereit.</p>
-  <p><strong>Stand 23.07.2026:</strong> Der Tracer ist implementiert; Feed Discovery ist verbunden, die App Shell bleibt offen. Grundlage: <a href="../product/core-product.html">Core product</a> und <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a>.</p>
+  <p><strong>Stand 23.07.2026:</strong> Der erste Screen ist funktional und visuell abgeschlossen; Feed Discovery ist verbunden, die App Shell bleibt offen. Grundlage: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
 
   <div class="flow" aria-label="State graph: Start führt zu Entry. WebsiteChanged bleibt in Entry. FollowWebsite mit Inhalt führt zu Feed Discovery. UseApp führt zur App Shell.">
     <div class="node entry"><span class="eyebrow">Start + Entry</span><h3>Alles sofort sichtbar</h3><p>Website-Feld · Website folgen · Direkt zur App</p></div>
@@ -39,32 +39,54 @@
     <tr><td>Start</td><td>–</td><td>Entry</td><td>Feld und beide Ziele sind ohne verpflichtenden Vorschritt verfügbar.</td></tr>
     <tr><td>Entry</td><td><code>WebsiteChanged</code></td><td>Entry</td><td>Editierten Wert erhalten.</td></tr>
     <tr><td>Entry</td><td><code>FollowWebsite</code>, nicht leer</td><td>Feed Discovery</td><td>Außen trimmen und Website emittieren; Parsing, Validierung, Netzwerk und Fehler gehören Discovery.</td></tr>
-    <tr><td>Entry</td><td><code>FollowWebsite</code>, leer</td><td>Entry</td><td>Kein Outcome; Primäraktion bleibt disabled.</td></tr>
+    <tr><td>Entry</td><td><code>FollowWebsite</code>, leer</td><td>Entry</td><td>Kein Outcome; <code>OnboardingState.canFollowWebsite</code> ist false und die Primäraktion bleibt disabled.</td></tr>
     <tr><td>Entry</td><td><code>UseApp</code></td><td>App Shell</td><td>Sofortiges Outcome ohne Setup.</td></tr>
   </tbody></table>
-  <p><code>OnboardingModel</code> ist das gemeinsame Verhaltensmodul und sein öffentliches Interface die Test-Seam. Es kennt weder Navigation, Persistenz, Feedformate noch Netzwerk. <code>OnboardingFeature</code> adaptiert es an zwei echte Renderer. <code>App</code> reicht beide Outcomes an den Caller weiter und konsumiert <code>FollowWebsite</code> zusätzlich intern über den <a href="feed-discovery-tracer.html">Feed-Discovery-Tracer</a>. <code>UseApp</code> bleibt ein unverbundener App-Shell-Handoff statt eines neuen Onboarding-State.</p>
+  <p><code>OnboardingModel</code> ist das gemeinsame Verhaltensmodul und sein öffentliches Interface die Test-Seam. Es kennt weder Navigation, Persistenz, Feedformate noch Netzwerk. Das Model leitet <code>canFollowWebsite</code> aus dem editierbaren Wert ab, damit Caller und beide Renderer dieselbe Whitespace-Regel verwenden. <code>OnboardingFeature</code> adaptiert es an zwei echte Renderer. <code>App</code> reicht beide Outcomes an den Caller weiter und konsumiert <code>FollowWebsite</code> zusätzlich intern über den <a href="feed-discovery-tracer.html">Feed-Discovery-Tracer</a>. <code>UseApp</code> bleibt ein unverbundener App-Shell-Handoff statt eines neuen Onboarding-State.</p>
 
   <h2>Plattformen bleiben Plattformen</h2>
   <div class="grid">
-    <section class="card"><p class="eyebrow">Common</p><h3>Bedeutung</h3><p>State, Actions, Outcomes und Renderer-Seam. Keine Komponenten-Chrome, Feedvalidierung oder Navigation.</p></section>
-    <section class="card"><p class="eyebrow">Android</p><h3>Material 3 Expressive</h3><p>Expressive Type Scale, tonale Theme-Rollen, URI-Keyboard, 56dp Primäraktion. Keine iOS-Annahmen.</p></section>
-    <section class="card"><p class="eyebrow">iOS</p><h3>Apple-native in spirit</h3><p>Compose Foundation, Apple-Typografie und -Abstände, solide Controls, URI-Keyboard. Kein <code>MaterialTheme</code>, Fake-Blur oder falsches Liquid-Glass-Versprechen.</p></section>
+    <section class="card"><p class="eyebrow">Common feature</p><h3>Bedeutung</h3><p>State, abgeleitete Action-Verfügbarkeit, Actions, Outcomes und Renderer-Seam. Keine Komponenten-Chrome, Feedvalidierung oder Navigation.</p></section>
+    <section class="card"><p class="eyebrow">Common resources</p><h3>Lokalisierte Copy</h3><p>Jeder sichtbare und assistive Onboarding-String, inklusive eigener Android-/iOS-Stimme. Keine Navigation-Identity, Remote-Inhalte oder Plattform-Chrome.</p></section>
+    <section class="card"><p class="eyebrow">Android</p><h3>Material 3 Expressive</h3><p>Expressive Type Scale, tonale Action-Fläche, URI-Keyboard, 56dp Primäraktion. Keine iOS-Annahmen.</p></section>
+    <section class="card"><p class="eyebrow">iOS</p><h3>Apple-native in spirit</h3><p>Compose Foundation, Apple-Typografie, Fokusbehandlung, opake Action-Fläche und URI-Keyboard. Kein <code>MaterialTheme</code>, Fake-Blur oder falsches Liquid-Glass-Versprechen.</p></section>
   </div>
-  <p>Copy darf plattformspezifisch klingen, solange Aktionen dasselbe bedeuten. Dieser iOS-Tracer nutzt den dokumentierten opaken Fallback. Echtes Liquid Glass gehört nur bei realem UX-Gewinn in die native Host-Seam.</p>
+  <p>Copy darf plattformspezifisch klingen, solange Aktionen dasselbe bedeuten; alle Texte kommen über generierte <code>Res.string</code>-Accessors. Android nutzt Material-Theme-Rollen für Surface Container, Typografie und Shape. iOS nutzt den dokumentierten opaken Fallback mit Apple-semantischer Outline und sichtbarem Accent-Fokusring. Echtes Liquid Glass gehört nur bei realem UX-Gewinn in die native Host-Seam.</p>
+
+  <h2>Adaptive Hierarchie</h2>
+  <p>Die große, plattformspezifische Promise ist der einzige expressive Moment. Daneben bleibt eine ruhige Action-Fläche mit genau einem Feld, einer Primäraktion und einem niedrig priorisierten Exit. Es gibt keine Illustration, Feed-Preview oder Animation.</p>
+  <table><thead><tr><th>Fenster</th><th>Struktur</th><th>Breitenvertrag</th><th>Semantische Reihenfolge</th></tr></thead><tbody>
+    <tr><td>&lt; 720dp</td><td>Linear, vertikal scrollbar</td><td>Android max. 600dp · iOS max. 560dp</td><td>Promise → Feld → Primäraktion → Sekundäraktion</td></tr>
+    <tr><td>≥ 720dp</td><td>Zwei Spalten, vertikal scrollbar</td><td>Android max. 1040dp · iOS max. 1000dp</td><td>Promise → Action-Fläche; innerhalb der Fläche bleibt die lineare Action-Reihenfolge</td></tr>
+  </tbody></table>
+  <p>Beide Varianten erhalten IME-Padding. Damit reflowen Phone Portrait, Phone Landscape, Tablet und große Schrift, ohne Leselinien endlos zu strecken.</p>
 
   <h2>Accessibility: Vertrag und Restrisiko</h2>
   <ul>
-    <li>Heading-Semantik und sichtbare Traversal-Reihenfolge; Website-Feld mit stabilem Namen, URI-Keyboard und Go-Aktion.</li>
+    <li>Promise und Action-Titel sind Headings; jedes responsive Layout ist eine explizite Traversal Group mit Promise vor Action-Fläche.</li>
+    <li>Website-Feld mit stabilem lokalisiertem Namen, sichtbarem Label, Supporting Instruction, URI-Keyboard und abgesicherter Go-Aktion.</li>
+    <li>Android verwendet Material-Textfeld-/Button-Semantik. iOS exponiert Editable-Text-Semantik, Button-Rolle, Disabled-State und sichtbare Keyboard-Fokus-Outline. Native Clickable-/Focusable-Aktionen bleiben für Screenreader, Hardware-Keyboard und Switch Access erreichbar.</li>
     <li>Reflow durch vertikal scrollbares, breitenbegrenztes Layout; keine Text-Clips bei großen Schriftgrößen und Landscape.</li>
     <li>Mindestens 48dp: Android primary 56dp, iOS primary 52dp.</li>
     <li>Semantische Theme-Farben für Text, Fläche, Outline, Accent und Disabled; Zustand wird nicht nur über Farbe vermittelt.</li>
     <li>Keine dekorative Motion und kein transparentes Material: Reduce Motion und Reduce Transparency brauchen im Tracer keinen Alternativpfad.</li>
-    <li>Geteiltes Verhalten wird über das Caller-Interface getestet; eigene Android-/iOS-Previews machen die tatsächlichen Controls visuell prüfbar, Android Lint und beide Plattformcompiler prüfen Integration.</li>
+    <li>Geteiltes Verhalten wird über das Caller-Interface getestet. Android-/iOS-Previews zeigen Compact State sowie einen <code>900×500dp</code>, <code>1.6×</code>-Font-Scale-Landscape-/Disabled-State; Android Lint und beide Plattformcompiler prüfen Integration.</li>
   </ul>
   <p class="must"><strong>Release-Risiko bleibt offen:</strong> TalkBack, VoiceOver, Switch/Keyboard, größte Schrift, erhöhter Kontrast, Rotation und echte Geräte-Targets müssen manuell geprüft werden. Compiler und Semantik-Deklarationen ersetzen das nicht.</p>
 
+  <h2>TDD-Tracer</h2>
+  <div class="flow" aria-label="Ein RED-zu-GREEN-Zyklus über das öffentliche OnboardingModel-Interface.">
+    <div class="node"><span class="eyebrow">RED</span><h3>Blank bleibt inaktiv</h3><p><code>blank website keeps the follow action unavailable</code> griff über <code>OnboardingModel.state</code> zu und scheiterte am fehlenden <code>canFollowWebsite</code>.</p></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node entry"><span class="eyebrow">GREEN</span><h3>Eine gemeinsame Regel</h3><p><code>OnboardingState.canFollowWebsite</code> leitet den Zustand über <code>website.isNotBlank()</code> ab; derselbe fokussierte Test bestand ohne Plattformcode.</p></div>
+  </div>
+  <pre><code>cd reader
+ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:testAndroidHostTest \
+  --tests 'com.smponi.reader.feature.onboarding.OnboardingModelTest'</code></pre>
+
   <h2>Scope &amp; verbundener Downstream-Slice</h2>
-  <p>Keine neue Dependency: nur vorhandene Compose Runtime, Foundation, UI und Android Material 3. Keine Navigation, Persistenz, Feed-Parser, Animation, Bildbibliothek oder DI.</p>
+  <p>Der Slice aktiviert das im Compose-Versionssatz bereits gepinnte Compose-Multiplatform-Resources-Artefakt. Es besitzt den von ADR-0002 geforderten generierten, lokalisierbaren Resource-Zugriff und führt keine neue Drittanbieter-Technologie oder Version ein. Keine Navigation, Persistenz, Feed-Parser, Animation, Bildbibliothek oder DI.</p>
   <p><code>OnboardingOutcome.FollowWebsite</code> startet jetzt echte Feed Discovery durch das öffentliche Feature-Interface und rendert handlungsfähige Loading-, Result-, Empty- und Failure-States auf Android und iOS. Das nächste Discovery-Verhalten gehört in einen eigenen Feature-Slice; Onboarding darf keinen Bestätigungs-Screen erhalten. Separat <code>UseApp</code> an eine accessible Empty App Shell anschließen.</p>
 </body>
 </html>

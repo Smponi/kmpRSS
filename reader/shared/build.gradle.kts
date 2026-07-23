@@ -73,6 +73,10 @@ dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
 }
 
+compose.resources {
+    packageOfResClass = "com.smponi.reader.resources"
+}
+
 ktlint {
     filter {
         exclude { element -> element.file.path.contains("/build/generated/") }

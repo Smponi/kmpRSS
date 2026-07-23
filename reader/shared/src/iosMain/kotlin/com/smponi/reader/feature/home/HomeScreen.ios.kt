@@ -41,21 +41,21 @@ import com.smponi.reader.core.designsystem.FoundationSize
 import com.smponi.reader.core.designsystem.FoundationSpacing
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.resources.Res
+import com.smponi.reader.resources.home_empty_body
+import com.smponi.reader.resources.home_empty_title
+import com.smponi.reader.resources.home_follow_website
+import com.smponi.reader.resources.home_inbox
+import com.smponi.reader.resources.home_inbox_empty
+import com.smponi.reader.resources.home_intro
+import com.smponi.reader.resources.home_intro_supporting
+import com.smponi.reader.resources.home_saved
+import com.smponi.reader.resources.home_saved_empty
+import com.smponi.reader.resources.home_sections_title
+import com.smponi.reader.resources.home_title
+import com.smponi.reader.resources.home_websites_and_tags
+import com.smponi.reader.resources.home_websites_and_tags_empty
 import org.jetbrains.compose.resources.stringResource
-import reader.shared.generated.resources.Res
-import reader.shared.generated.resources.home_empty_body
-import reader.shared.generated.resources.home_empty_title
-import reader.shared.generated.resources.home_follow_website
-import reader.shared.generated.resources.home_inbox
-import reader.shared.generated.resources.home_inbox_empty
-import reader.shared.generated.resources.home_intro
-import reader.shared.generated.resources.home_intro_supporting
-import reader.shared.generated.resources.home_saved
-import reader.shared.generated.resources.home_saved_empty
-import reader.shared.generated.resources.home_sections_title
-import reader.shared.generated.resources.home_title
-import reader.shared.generated.resources.home_websites_and_tags
-import reader.shared.generated.resources.home_websites_and_tags_empty
 
 /**
  * Apple-native-in-spirit Home shell.
