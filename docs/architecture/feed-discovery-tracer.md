@@ -1,8 +1,9 @@
-# Feed discovery tracer bullet
+# Feed discovery and candidate-selection tracer
 
-- **Status:** Implemented tracer; feed selection, preview and subscription remain open
+- **Status:** Implemented candidate-selection handoff; feed preview and subscription remain open
 - **Last updated:** 2026-07-23
-- **Scope:** Smallest real network slice for `PRD-001` and `PRD-011`, connected directly from `PRD-013`
+- **Scope:** Real discovery plus the smallest explicit candidate-selection handoff for `PRD-001` and `PRD-011`,
+  connected directly from `PRD-013`
 - **Product constraints:** [Core product](../product/core-product.md),
   [ADR-0001](../adr/0001-v1-product-foundation.md)
 
@@ -19,6 +20,7 @@ stateDiagram-v2
     Discovering --> Found: one or more advertised feeds
     Discovering --> NoFeeds: website loaded, no advertised feed
     Discovering --> Failed: request or interpretation failed
+    Found --> Found: select advertised candidate and emit handoff
     Found --> Discovering: Retry
     NoFeeds --> Discovering: Retry
     Failed --> Discovering: Retry
@@ -32,15 +34,33 @@ stateDiagram-v2
 |---|---|---|---|
 | Onboarding | `FollowWebsite("example.com")` | `Discovering("https://example.com")` | Start immediately without confirmation or another onboarding screen. |
 | Discovering | Successful website with supported declarations | `Found` | Expose all distinct advertised candidates; do not guess one. |
+| Found | `select(candidate)` with a currently advertised candidate | `Found(selectedCandidate)` + `CandidateSelected` | Record exactly the caller's choice and emit its website/candidate handoff; never select implicitly. |
 | Discovering | Successful website without supported declarations | `NoFeeds` | Distinguish a useful empty result from a network failure. |
 | Discovering | HTTP, transport or interpretation failure | `Failed` | Preserve the website and expose Retry and Edit Website. |
 | Found / NoFeeds / Failed | Retry | Discovering | Repeat the same discovery without re-entering the website. |
 | Any discovery state | Edit Website | Onboarding | Return to entry without a navigation dependency or confirmation step. |
 
-`FeedDiscovery` is the deep module: callers know the state, `discover()` and
-`close()`, while HTTP, redirect handling, response interpretation, URL resolution
-and failure normalisation remain implementation details. Cancellation is rethrown
-so leaving the feature cancels work instead of presenting a false failure.
+`FeedDiscovery` is the deep module: callers know the state, `discover()`,
+`select(candidate)` and `close()`, while membership validation, HTTP, redirect
+handling, response interpretation, URL resolution and failure normalisation remain
+implementation details. `select` accepts only a candidate in the current `Found`
+state, updates `selectedCandidate` and returns
+`FeedDiscoveryOutcome.CandidateSelected`; stale or unrelated candidates produce no
+handoff. Cancellation is rethrown so leaving the feature cancels work instead of
+presenting a false failure.
+
+## Candidate-selection behaviour
+
+`Found` always begins with `selectedCandidate = null`, even when the website
+advertises exactly one feed. Selecting a row is the explicit user decision and
+simultaneously emits the small handoff for a later preview slice. This keeps the
+single- and multi-candidate paths identical, makes the selected state observable
+when the caller remains on the screen, and prevents discovery from guessing among
+multiple declarations.
+
+`App` forwards `FeedDiscoveryOutcome` through its public callback. This slice does
+not consume the outcome, navigate, fetch the feed, render a preview or persist a
+subscription.
 
 ## Discovery behaviour in this tracer
 
@@ -59,28 +79,32 @@ client's redirect behaviour and interprets the final response:
 - a successful page with no supported declaration becomes `NoFeeds`.
 
 This is intentionally declaration-based discovery. It does not probe guessed
-paths, parse feed XML, validate entries, preview content, choose among candidates,
-persist a subscription or fetch arbitrary article pages. Those behaviours require
-their own tests and slices.
+paths, parse feed XML, validate entries, preview content, persist a subscription
+or fetch arbitrary article pages. Those behaviours require their own tests and
+slices.
 
 ## App and platform ownership
 
 `App` observes the existing onboarding callback. It still forwards every
 `OnboardingOutcome` to its caller, while `FollowWebsite` additionally swaps the
-local content to `FeedDiscoveryFeature`. `UseApp` remains untouched and does not
-force an app shell into this slice. The feature owns only a local attempt counter;
-no navigation framework or long-lived app graph was introduced.
+local content to `FeedDiscoveryFeature`. Explicit selection is forwarded through
+the separate `onFeedDiscoveryOutcome` callback. `UseApp` remains untouched and
+does not force an app shell into this slice. The feature owns only local discovery
+and selection state; no navigation framework or long-lived app graph was
+introduced.
 
 | Source set | Ownership | Platform contract |
 |---|---|---|
-| `commonMain/feature/discovery` | Session, states, candidate meaning, Ktor response interpretation, feature lifecycle and renderer seam | No Material or Apple component chrome; no subscription pipeline |
-| `androidMain/feature/discovery` | Material 3 result screen | Semantic theme roles, headline/type scale, tonal candidate cards, 56dp primary Retry, 48dp secondary action |
-| `iosMain/feature/discovery` | Apple-native-in-spirit result screen | Compose Foundation, Apple semantic tokens, opaque rounded surfaces, 52dp actions; no `MaterialTheme` or fake glass |
+| `commonMain/feature/discovery` | Session, states, explicit selection/outcome, candidate meaning, Ktor response interpretation, feature lifecycle and renderer seam | No Material or Apple component chrome; no feed preview or subscription pipeline |
+| `androidMain/feature/discovery` | Material 3 result and single-choice screen | Semantic theme roles, expressive type/list treatment, tonal selected state, radio semantics and at least 48dp candidate targets |
+| `iosMain/feature/discovery` | Apple-native-in-spirit result and single-choice screen | Compose Foundation, Apple semantic tokens, opaque rounded rows, checkmark plus selected semantics and 52dp candidate targets; no `MaterialTheme` or fake glass |
 | `androidApp` | Android capability declaration | `INTERNET` is a normal install-time capability, not a runtime permission prompt |
 
-The Android renderer uses the existing Material 3 theme seam. The iOS renderer
-uses the documented opaque fallback; real Liquid Glass remains a native host
-decision and is not imitated with Compose blur.
+The Android renderer uses the existing Material 3 theme seam. Its candidate rows
+form one semantic selection group and pair Material selection state with tonal
+surface roles. The iOS renderer uses an opaque, rounded list with an explicit
+checkmark and selected semantics; real Liquid Glass remains a native host decision
+and is not imitated with Compose blur.
 
 ## Accessibility contract and evidence
 
@@ -89,13 +113,16 @@ decision and is not imitated with Compose blur.
 - Loading always exposes “Feeds werden gesucht” semantics and an immediate Edit
   Website action. Android suppresses the indeterminate visual when Reduced Motion
   is active; the textual state remains.
-- Result, empty and failure states expose a named Retry action and an Edit Website
-  action. Interactive targets are at least 48dp; Android Retry is 56dp and iOS
-  actions are 52dp.
+- Found exposes every candidate as a named single-choice target, including selected
+  semantics; the selected row also shows a radio/checkmark indicator rather than
+  relying on colour alone. No candidate is selected automatically.
+- Empty and failure states expose a named Retry action. Every state exposes Edit
+  Website. Interactive targets are at least 48dp; Android Retry is 56dp and iOS
+  actions and candidate rows are 52dp.
 - Width-constrained, vertically scrollable layouts reflow at large text sizes and
   in landscape. Candidate titles and URLs remain text rather than icon-only cues.
-- Platform previews cover a real result and both platform compilers cover actual
-  renderers.
+- Platform previews cover a two-candidate selected state and both platform
+  compilers cover the actual renderers and callback handoff.
 
 TalkBack, VoiceOver, switch/keyboard traversal, largest text, increased contrast,
 orientation and physical-device targets remain manual release gates. Compilation
@@ -123,8 +150,16 @@ The first cycle was exactly one public-interface tracer:
    `Discovering("https://example.com")`.
 
 Later one-at-a-time cycles added observable candidate, HTML declaration, failure
-and empty-result behaviour through the feature or its real Ktor adapter. The
-relevant commands are:
+and empty-result behaviour through the feature or its real Ktor adapter. This
+slice began with exactly one new public-interface cycle:
+
+1. RED: a caller could not observe that two discovered candidates began
+   unselected, select the second candidate, or receive a
+   `CandidateSelected` handoff.
+2. GREEN: `Found.selectedCandidate` and `FeedDiscovery.select(candidate)` added
+   only that observable behaviour; the same test then passed.
+
+The relevant commands are:
 
 ```sh
 cd reader
@@ -139,9 +174,9 @@ Canonical repository gates remain defined in
 
 ## Next smallest test-first slice
 
-Starting from `FeedDiscoveryState.Found`, define the smallest candidate-selection
-outcome that supports both one and multiple advertised feeds without guessing.
-Connect that outcome to a feed preview in a later vertical slice. Do not add
-subscription persistence, tags, notifications, a full navigation graph or an
-onboarding confirmation step in advance. `OnboardingOutcome.UseApp` remains a
-separate accessible-empty-shell slice.
+Consume `FeedDiscoveryOutcome.CandidateSelected` in the smallest feed-preview
+slice: fetch and show only enough feed identity and recent-entry evidence for the
+person to decide whether to follow it, with actionable failure recovery. Do not
+persist a subscription, add tags or notifications, build a complete ingestion
+pipeline or introduce a full navigation graph in advance.
+`OnboardingOutcome.UseApp` remains a separate accessible-empty-shell slice.
