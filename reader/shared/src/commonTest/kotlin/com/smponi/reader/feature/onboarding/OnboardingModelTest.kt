@@ -2,6 +2,8 @@ package com.smponi.reader.feature.onboarding
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 
 class OnboardingModelTest {
     @Test
@@ -24,5 +26,15 @@ class OnboardingModelTest {
             OnboardingOutcome.UseApp,
             onboarding.onAction(OnboardingAction.UseApp),
         )
+    }
+
+    @Test
+    fun `blank website keeps the follow action unavailable`() {
+        val onboarding = OnboardingModel(
+            initialState = OnboardingState(website = " \n "),
+        )
+
+        assertFalse(onboarding.state.canFollowWebsite)
+        assertNull(onboarding.onAction(OnboardingAction.FollowWebsite))
     }
 }
