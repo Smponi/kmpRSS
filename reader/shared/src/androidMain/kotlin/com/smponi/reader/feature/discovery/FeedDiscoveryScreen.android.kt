@@ -1,0 +1,208 @@
+package com.smponi.reader.feature.discovery
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.smponi.reader.core.designsystem.FoundationSize
+import com.smponi.reader.core.designsystem.FoundationSpacing
+import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
+import com.smponi.reader.core.designsystem.MotionLevel
+import com.smponi.reader.core.designsystem.ReaderTheme
+
+/** Material 3 discovery handoff for Android; it shares state meaning, not layout chrome, with iOS. */
+@Composable
+internal actual fun PlatformFeedDiscoveryScreen(
+    state: FeedDiscoveryState,
+    onRetry: () -> Unit,
+    onEditWebsite: () -> Unit,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(horizontal = FoundationSpacing.medium),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .widthIn(max = DiscoveryContentMaxWidth)
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = FoundationSpacing.large),
+            ) {
+                DiscoveryHeading(state)
+                Spacer(Modifier.height(FoundationSpacing.small))
+                Text(
+                    text = state.website,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(Modifier.height(FoundationSpacing.extraLarge))
+                DiscoveryBody(state)
+                Spacer(Modifier.height(FoundationSpacing.extraLarge))
+                if (state !is FeedDiscoveryState.Discovering) {
+                    Button(
+                        onClick = onRetry,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .sizeIn(minHeight = PrimaryActionHeight),
+                    ) {
+                        Text("Erneut suchen")
+                    }
+                    Spacer(Modifier.height(FoundationSpacing.small))
+                }
+                TextButton(
+                    onClick = onEditWebsite,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .sizeIn(minHeight = FoundationSize.minimumInteractiveTarget),
+                ) {
+                    Text("Andere Website eingeben")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiscoveryHeading(state: FeedDiscoveryState) {
+    val title = when (state) {
+        is FeedDiscoveryState.Discovering -> "Website wird geprüft"
+        is FeedDiscoveryState.Found ->
+            if (state.candidates.size == 1) "Feed gefunden" else "${state.candidates.size} Feeds gefunden"
+
+        is FeedDiscoveryState.NoFeeds -> "Kein Feed gefunden"
+        is FeedDiscoveryState.Failed -> "Website nicht erreichbar"
+    }
+    Text(
+        text = title,
+        style = MaterialTheme.typography.headlineLarge,
+        modifier = Modifier.semantics { heading() },
+    )
+}
+
+@Composable
+private fun DiscoveryBody(state: FeedDiscoveryState) {
+    when (state) {
+        is FeedDiscoveryState.Discovering -> {
+            val reducedMotion =
+                LocalReaderDesignSystem.current.accessibility.motionLevel == MotionLevel.Reduced
+            if (!reducedMotion) {
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics {
+                        contentDescription = "Feeds werden gesucht"
+                    },
+                )
+                Spacer(Modifier.height(FoundationSpacing.medium))
+            }
+            Text(
+                text = "Wir suchen nach den Feeds, die diese Website anbietet.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+
+        is FeedDiscoveryState.Found -> {
+            Text(
+                text = "Diese Quellen wurden von der Website angegeben:",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Spacer(Modifier.height(FoundationSpacing.medium))
+            Column(verticalArrangement = Arrangement.spacedBy(FoundationSpacing.small)) {
+                state.candidates.forEach { candidate ->
+                    CandidateCard(candidate)
+                }
+            }
+        }
+
+        is FeedDiscoveryState.NoFeeds ->
+            Text(
+                text = "Unter dieser Adresse wurde kein unterstützter Feed angegeben. Du kannst es erneut versuchen " +
+                    "oder die Website ändern.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+        is FeedDiscoveryState.Failed ->
+            Text(
+                text = "Die Website konnte gerade nicht geladen werden. Prüfe deine Verbindung oder " +
+                    "versuche es erneut.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+    }
+}
+
+@Composable
+private fun CandidateCard(candidate: FeedCandidate) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(FoundationSpacing.medium)) {
+            Text(
+                text = candidate.title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(Modifier.height(FoundationSpacing.extraSmall))
+            Text(
+                text = candidate.url,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+private val DiscoveryContentMaxWidth = 640.dp
+private val PrimaryActionHeight = 56.dp
+
+@Preview
+@Composable
+private fun AndroidFeedDiscoveryPreview() {
+    ReaderTheme {
+        PlatformFeedDiscoveryScreen(
+            state = FeedDiscoveryState.Found(
+                website = "https://example.com",
+                candidates = listOf(
+                    FeedCandidate(
+                        title = "Example updates",
+                        url = "https://example.com/feed.xml",
+                    ),
+                ),
+            ),
+            onRetry = {},
+            onEditWebsite = {},
+        )
+    }
+}
