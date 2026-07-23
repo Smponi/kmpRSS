@@ -16,6 +16,7 @@ the same commit.
 | Decision | [ADR-0001: v1 product foundation](adr/0001-v1-product-foundation.md) | [ADR-0001](adr/0001-v1-product-foundation.html) | Accepted |
 | Engineering | [Build and quality contract](engineering/build-and-quality.md) | [Build and quality contract](engineering/build-and-quality.html) | Accepted |
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
+| Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented tracer |
 | Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |
 
 ## Status vocabulary

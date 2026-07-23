@@ -9,10 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
+import com.smponi.reader.feature.onboarding.OnboardingFeature
+import com.smponi.reader.feature.onboarding.OnboardingOutcome
 
 @Composable
 @Preview
-fun App() {
+fun App(onOnboardingOutcome: (OnboardingOutcome) -> Unit = {}) {
     ReaderTheme {
         val designSystem = LocalReaderDesignSystem.current
         Box(
@@ -20,6 +22,8 @@ fun App() {
                 .background(designSystem.colors.surface)
                 .safeContentPadding()
                 .fillMaxSize(),
-        )
+        ) {
+            OnboardingFeature(onOutcome = onOnboardingOutcome)
+        }
     }
 }
