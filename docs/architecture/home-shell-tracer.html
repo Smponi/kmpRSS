@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · Home shell tracer</title>
+  <style>
+    :root { color-scheme:light dark; --accent:#34745f; --soft:color-mix(in srgb,Canvas 93%,var(--accent)); --line:color-mix(in srgb,CanvasText 18%,transparent); }
+    body { margin:0 auto; max-width:1120px; padding:42px 24px 76px; background:Canvas; color:CanvasText; font:15px/1.5 system-ui,sans-serif; }
+    h1 { margin:.12em 0; max-width:12ch; font-size:clamp(2.3rem,7vw,5.2rem); line-height:.92; letter-spacing:-.055em; }
+    h2 { margin-top:2.2em; } h3 { margin-bottom:.35em; } .eyebrow { color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:.11em; }
+    .lead { max-width:72ch; font-size:1.2rem; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
+    .card,.node { border:1px solid var(--line); border-radius:20px; padding:18px; background:var(--soft); }
+    .flow { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin:24px 0; align-items:stretch; }
+    .node strong { display:block; margin-bottom:7px; } .accent { border:2px solid var(--accent); }
+    table { width:100%; border-collapse:collapse; } th,td { border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+    code { font-family:ui-monospace,monospace; } .must { border-left:5px solid var(--accent); padding:12px 16px; background:var(--soft); }
+    li+li { margin-top:.42em; } a { color:var(--accent); }
+    @media (max-width:800px) { .flow { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">PRD-005 · PRD-011 · PRD-013 · PRD-014</p>
+  <h1>Ein ruhiger Raum, bevor Inhalte da sind.</h1>
+  <p class="lead">Implementierte, datenfreie Home-UI-Shell mit ehrlichen Empty-Statusflächen und genau einem ausführbaren Handoff: „Website folgen“.</p>
+  <p><strong>Status 23.07.2026:</strong> UI-Shell implementiert; Onboarding- und Discovery-Integration bleiben offen. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
+
+  <div class="flow" aria-label="Graph: Der spätere App-Caller öffnet eine Home-Session. Diese liefert Empty-State und HomeFeature an Android oder iOS. Website folgen erzeugt ein Outcome zurück zum Caller.">
+    <div class="node"><strong>Later app caller</strong><code>openHome()</code></div>
+    <div class="node accent"><strong>Home session</strong><code>HomeState.Empty</code></div>
+    <div class="node"><strong>HomeFeature</strong>Shared intent</div>
+    <div class="node"><strong>Android · iOS</strong>Separate renderer</div>
+    <div class="node"><strong>Callback seam</strong><code>FollowWebsite</code> → Caller</div>
+  </div>
+
+  <h2>Öffentliches Interface und Graphkanten</h2>
+  <table><thead><tr><th>Von</th><th>Nach</th><th>Vertrag</th></tr></thead><tbody>
+    <tr><td>Later app caller</td><td><code>openHome()</code></td><td>Shell explizit erzeugen; Navigation und Onboarding-State werden nicht abgeleitet.</td></tr>
+    <tr><td><code>openHome()</code></td><td><code>Home</code></td><td>Nur wahrer Empty-State und eine Action→Outcome-Transition.</td></tr>
+    <tr><td><code>Home</code></td><td><code>HomeFeature</code></td><td>Caller, Renderer und exakt ein Tracer nutzen dieselbe öffentliche Session.</td></tr>
+    <tr><td><code>HomeFeature</code></td><td>Android/iOS</td><td>State und Intent teilen; Struktur und Chrome bleiben Plattformbesitz.</td></tr>
+    <tr><td>Renderer</td><td><code>HomeAction.FollowWebsite</code></td><td>Nur „Website folgen“ ist interaktiv.</td></tr>
+    <tr><td><code>FollowWebsite</code></td><td>Caller</td><td><code>HomeOutcome.FollowWebsite</code> emittieren; keine Navigation in diesem Slice.</td></tr>
+  </tbody></table>
+  <p>Empty bedeutet: keine ungelesenen Inbox-Artikel, keine gespeicherten Artikel, keine gefolgten Websites und keine Tags. Diese Angebote sind strukturierte, nicht-interaktive Label-plus-Status-Flächen – ohne Button-, Link-, Selected- oder Disabled-Control-Role. Assistive Technologie erhält damit kein falsches Navigationsversprechen.</p>
+
+  <h2>Scope und Navigation 3</h2>
+  <p class="must"><strong>Bewusst nicht verbunden:</strong> Keine Änderung an <code>App</code>, Onboarding oder Discovery; kein <code>AppNavKey</code>, String-Route, Back Stack oder Plattform-Routengraph. Ein Key ohne integriertes Ziel wäre spekulative Navigation.</p>
+  <p>Der spätere Integrations-Slice konsumiert <code>OnboardingOutcome.UseApp</code>, erzeugt oder nutzt den nötigen konkreten <code>@Serializable AppNavKey</code>, löst Home im exhaustiven Entry Provider auf und verarbeitet <code>HomeOutcome.FollowWebsite</code> als typed Event. Home erhält weiterhin weder Navigator noch Back Stack. Localized Copy, Callbacks und mutable State gehören niemals in Keys.</p>
+
+  <h2>Design: gemeinsame Bedeutung, zwei echte UIs</h2>
+  <p>Die visuelle These ist ein Leseraum vor der ersten Quelle. Eine einzige vertikale „Leserand“-Linie im Empty-State ist das charakteristische Element; sie steht für Reading-first statt für Dekoration. Der Rest bleibt Typografie, Raum und semantische Fläche.</p>
+  <div class="grid">
+    <section class="card"><p class="eyebrow">Common</p><h3>Tiefe Seam</h3><p>Empty-State, Follow-Website Action/Outcome, Renderer-Seam und lokalisierte Compose-Ressourcen. Keine Pipeline, Persistenz, Tags-Logik, Navigation oder Komponenten-Chrome.</p></section>
+    <section class="card"><p class="eyebrow">Android</p><h3>Material 3 Expressive</h3><p>Material Color/Type/Shape Roles, 56dp Action, kompakte Spalte unter 600dp, begrenzte Zwei-Bereich-Komposition ab 600dp, 1040dp Maximum. Ab Font Scale 1,5 wieder eine Spalte. Tonale Tiefe statt dekorativer Schatten; vorhandenes dynamisches/statisches Theme und 4/8dp-Rhythmus.</p></section>
+    <section class="card"><p class="eyebrow">iOS</p><h3>Apple-native in spirit</h3><p>Foundation Controls, Apple Design-System-Rollen, 52dp Action, Compact/Wide Layouts und opake Rounded Surfaces. Kein <code>MaterialTheme</code>, Blur oder behauptetes Liquid Glass.</p></section>
+  </div>
+  <p>iOS braucht in dieser Shell keinen nativen Glass-Control-Seam mit materiellem UX-Gewinn und nutzt deshalb den ehrlichen opaken Fallback. Echtes Liquid Glass bleibt eine Host-Option für einen später tatsächlich integrierten Apple-Control.</p>
+
+  <h2>Localization &amp; Accessibility</h2>
+  <ul>
+    <li>Alle neuen sichtbaren Home-Texte liegen in <code>shared/src/commonMain/composeResources/values/strings.xml</code> und werden über generierte <code>Res.string</code>-Accessors geladen.</li>
+    <li>Headline, Empty-State-Titel und „Deine Bereiche“ besitzen Heading-Semantik in sichtbarer Traversal-Reihenfolge.</li>
+    <li>Die einzige Aktion hat Textname, Button-Role, Keyboard/Switch-Fokus und 56dp Android- beziehungsweise 52dp iOS-Mindesthöhe.</li>
+    <li>Inbox, Gespeichert, Websites und Tags sprechen Label plus Empty-Status aus, bleiben Nicht-Controls und kommunizieren nie nur per Farbe.</li>
+    <li>Compact und Wide sind vertikal scrollbar; ab Font Scale 1,5 erzwingen beide Plattformen Single Column.</li>
+    <li>Android paart <code>primaryContainer/onPrimaryContainer</code>, <code>surfaceContainer/onSurface</code> und weitere vorgesehene Material-Rollen. iOS nutzt semantische Plattformpaare.</li>
+    <li>Keine Animation und kein transparentes Material; Reduced Motion und Reduce Transparency brauchen keinen Alternativ-Effekt. Beide Renderer besitzen Compact- und Wide-Previews.</li>
+  </ul>
+  <p class="must"><strong>Manuelle Release-Gates:</strong> TalkBack, VoiceOver, Switch/Keyboard, größte unterstützte Schrift, erhöhter Kontrast, Light/Dark, Orientierung, Fold/Hinge und physische Zielgröße. Compiler und Semantik-Deklarationen ersetzen diese Prüfungen nicht.</p>
+
+  <h2>Dependency und genau ein TDD-Tracer</h2>
+  <p>Aktiviert wird ausschließlich das bereits im Version Catalog deklarierte Compose-Multiplatform-Resources-Artefakt. Es besitzt die generierten locale-aware Accessors aus ADR-0002/PRD-014; eine lokale Nachimplementierung würde die Compose-Toolchain duplizieren. Keine weitere Dependency.</p>
+  <ol>
+    <li><strong>RED:</strong> <code>empty home offers an honest website-following handoff</code> scheiterte an fehlenden <code>openHome</code>, <code>HomeState</code>, <code>HomeAction</code> und <code>HomeOutcome</code>.</li>
+    <li><strong>GREEN:</strong> Die minimale Session lieferte <code>HomeState.Empty</code> und <code>FollowWebsite</code> Action→Outcome; derselbe Test lief grün.</li>
+    <li>Renderer und Ressourcen kamen danach bei weiterhin grünem Tracer hinzu. Kein zweiter Home-Test wurde ergänzt.</li>
+  </ol>
+  <pre><code>ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:testAndroidHostTest --tests 'com.smponi.reader.feature.home.HomeTest'
+ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:compileAndroidMain :shared:compileKotlinIosSimulatorArm64</code></pre>
+  <p>Die kanonischen Repository-Gates stehen im <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
+
+  <h2>Nächster Integrations-Slice</h2>
+  <p><code>OnboardingOutcome.UseApp</code> mit Home verbinden und <code>HomeOutcome.FollowWebsite</code> über den akzeptierten Navigation-3-Key-Vertrag in den bestehenden Website-/Discovery-Weg führen. Dabei keine Feed-Daten, Subscription-Persistenz, Tags-Logik, Settings oder Preview-Funktionalität hinzufügen.</p>
+</body>
+</html>

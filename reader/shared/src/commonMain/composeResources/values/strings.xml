@@ -16,4 +16,18 @@
     <string name="onboarding_ios_use_app_action">Ohne Website fortfahren</string>
 
     <string name="onboarding_website_placeholder">example.com</string>
+
+    <string name="home_title">Home</string>
+    <string name="home_intro">Dein Leseraum</string>
+    <string name="home_intro_supporting">Alles, was du bewusst gewählt hast – ohne Empfehlungen dazwischen.</string>
+    <string name="home_empty_title">Noch ist es ruhig hier.</string>
+    <string name="home_empty_body">Folge einer Website. Neue Artikel erscheinen dann in deiner Inbox.</string>
+    <string name="home_follow_website">Website folgen</string>
+    <string name="home_sections_title">Deine Bereiche</string>
+    <string name="home_inbox">Inbox</string>
+    <string name="home_inbox_empty">Keine ungelesenen Artikel</string>
+    <string name="home_saved">Gespeichert</string>
+    <string name="home_saved_empty">Keine gespeicherten Artikel</string>
+    <string name="home_websites_and_tags">Websites &amp; Tags</string>
+    <string name="home_websites_and_tags_empty">Noch keine Websites oder Tags</string>
 </resources>

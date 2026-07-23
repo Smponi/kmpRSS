@@ -19,6 +19,7 @@ the same commit.
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
 | Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented tracer |
 | Architecture | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.md) | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.html) | Implemented selection handoff |
+| Architecture | [Home shell tracer](architecture/home-shell-tracer.md) | [Home shell tracer](architecture/home-shell-tracer.html) | Implemented UI shell |
 | Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |
 
 ## Status vocabulary
