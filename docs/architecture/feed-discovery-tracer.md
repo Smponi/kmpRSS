@@ -106,7 +106,7 @@ and semantic declarations do not replace those checks.
 This slice admits Ktor `3.5.1` because the observable behaviour now includes real
 HTTP/TLS requests, redirects, cancellation and Android/iOS engine integration.
 The common client plus Android and Darwin engines own non-trivial platform
-networking that should not be reimplemented. `kotlinx-coroutines` `1.10.2` owns
+networking that should not be reimplemented. `kotlinx-coroutines` `1.11.0` owns
 the cancellable asynchronous feature lifecycle and deterministic coroutine tests.
 
 No serialization library, HTML parser, navigation library, DI framework or
