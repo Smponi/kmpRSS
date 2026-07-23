@@ -17,6 +17,8 @@
 
     <string name="onboarding_website_placeholder">example.com</string>
 
+    <string name="navigation_back">Zurück</string>
+
     <string name="home_title">Home</string>
     <string name="home_intro">Dein Leseraum</string>
     <string name="home_intro_supporting">Alles, was du bewusst gewählt hast – ohne Empfehlungen dazwischen.</string>
