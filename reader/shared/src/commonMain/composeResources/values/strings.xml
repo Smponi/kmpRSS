@@ -1,0 +1,19 @@
+<resources>
+    <string name="onboarding_android_headline">Dein Netz. Deine Ruhe.</string>
+    <string name="onboarding_android_body">Folge einer Website. Neue Artikel landen gesammelt an einem ruhigen Ort – ohne Empfehlungen.</string>
+    <string name="onboarding_android_panel_title">Mit einer Website beginnen</string>
+    <string name="onboarding_android_field_label">Website-Adresse</string>
+    <string name="onboarding_android_field_supporting">Website oder direkte Feed-Adresse</string>
+    <string name="onboarding_android_follow_action">Website folgen</string>
+    <string name="onboarding_android_use_app_action">Ohne Website starten</string>
+
+    <string name="onboarding_ios_headline">Lies, was du gewählt hast.</string>
+    <string name="onboarding_ios_body">Füge eine Website hinzu. Neue Artikel werden ruhig und privat auf diesem Gerät gesammelt.</string>
+    <string name="onboarding_ios_panel_title">Mit einer Website beginnen</string>
+    <string name="onboarding_ios_field_label">Website</string>
+    <string name="onboarding_ios_field_supporting">Website- oder Feed-Adresse</string>
+    <string name="onboarding_ios_follow_action">Website folgen</string>
+    <string name="onboarding_ios_use_app_action">Ohne Website fortfahren</string>
+
+    <string name="onboarding_website_placeholder">example.com</string>
+</resources>

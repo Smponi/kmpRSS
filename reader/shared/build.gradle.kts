@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.ktor.client.core)
         }
@@ -70,6 +71,10 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+}
+
+compose.resources {
+    packageOfResClass = "com.smponi.reader.resources"
 }
 
 ktlint {
