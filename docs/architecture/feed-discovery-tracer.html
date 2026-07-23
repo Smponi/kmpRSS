@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · Feed discovery tracer bullet</title>
+  <style>
+    :root { color-scheme:light dark; --accent:#316b58; --soft:color-mix(in srgb,Canvas 92%,var(--accent)); --line:color-mix(in srgb,CanvasText 18%,transparent); }
+    body { margin:0 auto; max-width:1120px; padding:40px 24px 72px; background:Canvas; color:CanvasText; font:15px/1.5 system-ui,sans-serif; }
+    h1 { margin:.15em 0; font-size:clamp(2.2rem,6vw,4.8rem); line-height:.95; letter-spacing:-.055em; }
+    h2 { margin-top:2.1em; } h3 { margin-bottom:.35em; } .eyebrow { color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:.11em; }
+    .lead { max-width:72ch; font-size:1.2rem; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(245px,1fr)); gap:14px; }
+    .card { border:1px solid var(--line); border-radius:20px; padding:18px; background:var(--soft); }
+    .flow { display:flex; gap:8px; align-items:stretch; flex-wrap:wrap; margin:24px 0; }
+    .node { flex:1 1 155px; border:1px solid var(--line); border-radius:16px; padding:15px; }
+    .active { border:2px solid var(--accent); } .arrow { align-self:center; color:var(--accent); font-size:1.35rem; }
+    table { width:100%; border-collapse:collapse; } th,td { border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+    code { font-family:ui-monospace,monospace; } .must { border-left:5px solid var(--accent); padding:12px 16px; background:var(--soft); }
+    li+li { margin-top:.4em; } a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">PRD-001 · PRD-011 · connected from PRD-013</p>
+  <h1>A real request.<br>Honest states.</h1>
+  <p class="lead"><code>OnboardingOutcome.FollowWebsite</code> startet ohne Bestätigung eine echte, abbrechbare Website-Anfrage. Die kleine öffentliche Session liefert deklarierte Feed-Kandidaten oder unterscheidbare Empty-/Failure-States.</p>
+  <p><strong>Status 23.07.2026:</strong> Implementierter Tracer; Auswahl, Preview und Subscription bleiben offen. Grundlage: <a href="../product/core-product.html">Core product</a> und <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a>.</p>
+
+  <div class="flow" aria-label="Onboarding FollowWebsite führt zu Discovering. Discovering führt zu Found, NoFeeds oder Failed. Retry führt jeweils zurück zu Discovering. Edit Website führt aus jedem Zustand zurück zum Onboarding.">
+    <div class="node"><span class="eyebrow">Onboarding</span><h3>FollowWebsite</h3><p>Kein Confirmation-Step.</p></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node active"><span class="eyebrow">Immediate</span><h3>Discovering</h3><p>HTTPS-Default · echte Ktor-Anfrage · Edit Website</p></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node"><span class="eyebrow">Result</span><h3>Found</h3><p>Alle distinct deklarierten Kandidaten.</p></div>
+    <div class="node"><span class="eyebrow">Empty</span><h3>NoFeeds</h3><p>Erfolgreich geladen, nichts unterstützt deklariert.</p></div>
+    <div class="node"><span class="eyebrow">Recovery</span><h3>Failed</h3><p>Website erhalten · Retry · Edit.</p></div>
+  </div>
+
+  <h2>Öffentliches Interface</h2>
+  <p><code>beginFeedDiscovery(FollowWebsite)</code> gibt sofort eine <code>FeedDiscovery</code>-Session mit <code>Discovering</code> zurück. Ohne Scheme wird <code>https://</code> ergänzt; explizites HTTP(S) bleibt erhalten. Caller kennen State, <code>discover()</code> und <code>close()</code>. HTTP, Redirects, Interpretation, URL-Auflösung und Fehlernormalisierung bleiben Implementation. Cancellation wird weitergeworfen, damit Verlassen keine falsche Failure erzeugt.</p>
+  <table><thead><tr><th>Von</th><th>Aktion / Beobachtung</th><th>Nach</th><th>Vertrag</th></tr></thead><tbody>
+    <tr><td>Onboarding</td><td><code>FollowWebsite("example.com")</code></td><td>Discovering</td><td>Sofort <code>https://example.com</code>, ohne Zwischen-Screen.</td></tr>
+    <tr><td>Discovering</td><td>Unterstützte Deklarationen</td><td>Found</td><td>Alle distinct Kandidaten zeigen; keinen erraten.</td></tr>
+    <tr><td>Discovering</td><td>Erfolgreich, keine Deklaration</td><td>NoFeeds</td><td>Useful Empty von Netzwerkfehler unterscheiden.</td></tr>
+    <tr><td>Discovering</td><td>HTTP / Transport / Interpretation schlägt fehl</td><td>Failed</td><td>Website bewahren; Retry und Edit anbieten.</td></tr>
+    <tr><td>Found / NoFeeds / Failed</td><td>Retry</td><td>Discovering</td><td>Ohne erneute Eingabe wiederholen.</td></tr>
+    <tr><td>Jeder Discovery-State</td><td>Edit Website</td><td>Onboarding</td><td>Ohne Navigation-Library oder Bestätigung zurück.</td></tr>
+  </tbody></table>
+
+  <h2>Was wirklich entdeckt wird</h2>
+  <div class="grid">
+    <section class="card"><p class="eyebrow">Direct feed</p><h3>Content-Type</h3><p><code>application/rss+xml</code> oder <code>application/atom+xml</code> wird direkt zu einem Kandidaten.</p></section>
+    <section class="card"><p class="eyebrow">Website</p><h3>Advertised links</h3><p><code>&lt;link rel="alternate"&gt;</code> braucht einen unterstützten Type. Absolute, scheme-relative, root-relative und path-relative Hrefs werden gegen die finale URL aufgelöst.</p></section>
+    <section class="card"><p class="eyebrow">Honesty</p><h3>Distinct outcomes</h3><p>2xx ohne Deklaration → NoFeeds. HTTP-/Transport-/Interpretationsfehler → Failed. URLs werden dedupliziert, Reihenfolge bleibt.</p></section>
+  </div>
+  <p class="must"><strong>Bewusst nicht enthalten:</strong> Keine geratenen Pfade, kein Feed-XML-/Entry-Parsing, keine Content-Preview, Auswahl, Persistenz, Tags, Notifications oder Fetches beliebiger Artikelseiten.</p>
+
+  <h2>Ownership &amp; Plattformen</h2>
+  <table><thead><tr><th>Source set</th><th>Owns</th><th>Vertrag</th></tr></thead><tbody>
+    <tr><td><code>commonMain/feature/discovery</code></td><td>Session, States, Kandidatenbedeutung, Ktor-Interpretation, Lifecycle, Renderer-Seam</td><td>Keine Material-/Apple-Chrome; keine Subscription-Pipeline.</td></tr>
+    <tr><td><code>androidMain/feature/discovery</code></td><td>Material 3 Screen</td><td>Semantische Theme-Rollen, Headline-Type, tonale Cards, 56dp Retry, 48dp Secondary.</td></tr>
+    <tr><td><code>iosMain/feature/discovery</code></td><td>Apple-native-in-spirit Screen</td><td>Foundation, Apple-Tokens, opaque rounded surfaces, 52dp Actions; kein <code>MaterialTheme</code> oder Fake Glass.</td></tr>
+    <tr><td><code>androidApp</code></td><td>Capability</td><td><code>INTERNET</code> ist Install-Capability, kein Runtime-Permission-Prompt.</td></tr>
+  </tbody></table>
+  <p><code>App</code> leitet weiterhin jedes Onboarding-Outcome an den Caller weiter und wechselt bei <code>FollowWebsite</code> zusätzlich lokal zu <code>FeedDiscoveryFeature</code>. <code>UseApp</code> bleibt unangetastet. Kein Navigation-Framework und kein langer App-Graph wurden eingeführt. iOS nutzt den dokumentierten opaken Fallback; echtes Liquid Glass bleibt eine native Host-Entscheidung.</p>
+
+  <h2>Accessibility</h2>
+  <ul>
+    <li>Jeder State hat Heading und Erklärung; Farbe oder Grafik sind nie das einzige Signal.</li>
+    <li>Loading exponiert „Feeds werden gesucht“ und sofort Edit Website. Android unterdrückt das indeterminate Visual bei Reduced Motion; Text bleibt.</li>
+    <li>Result, Empty und Failure haben benanntes Retry und Edit. Targets: mindestens 48dp; Android Retry 56dp, iOS Actions 52dp.</li>
+    <li>Breitenbegrenzte, vertikal scrollbare Layouts reflowen bei großer Schrift und Landscape; Titel und URLs bleiben Text.</li>
+    <li>Plattform-Previews zeigen einen echten Result-State; Android- und iOS-Compiler prüfen die Renderer-Integration.</li>
+  </ul>
+  <p class="must"><strong>Manuelle Release-Gates bleiben:</strong> TalkBack, VoiceOver, Switch/Keyboard, größte Schrift, erhöhter Kontrast, Rotation und physische Targets. Compiler und Semantik ersetzen sie nicht.</p>
+
+  <h2>Dependencies, TDD &amp; nächster Slice</h2>
+  <p><strong>Ktor 3.5.1</strong> wurde aufgenommen, weil der Slice jetzt echte HTTP/TLS-Anfragen, Redirects, Cancellation und Android-/Darwin-Engines braucht. <strong>kotlinx-coroutines 1.11.0</strong> trägt abbrechbaren Lifecycle und deterministische Coroutine-Tests. Keine Serialization-, HTML-Parser-, Navigation-, DI- oder Feed-Parser-Library. Der lokale Scanner besitzt nur die benötigten <code>&lt;link&gt;</code>-Attribute.</p>
+  <p>Der erste Zyklus war genau ein Interface-Test: RED wegen fehlendem <code>beginFeedDiscovery</code>/<code>FeedDiscoveryState</code>; GREEN normalisierte <code>example.com</code> zu <code>Discovering("https://example.com")</code>. Spätere Einzelzyklen ergänzten Candidates, HTML, Failure und Empty. Verifikation: <code>cd reader &amp;&amp; ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew :shared:testAndroidHostTest</code> sowie <code>:shared:compileKotlinIosSimulatorArm64</code>. Kanonische Gates: <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
+  <p><strong>Nächster kleinster Test-first Slice:</strong> Aus <code>Found</code> ein Candidate-Selection-Outcome für einen oder mehrere Feeds definieren, ohne zu raten; Preview erst danach verbinden. Keine Subscription-Persistenz, Tags, Notifications, langer Nav-Graph oder Onboarding-Bestätigung vorziehen. <code>UseApp</code> bleibt ein separater Accessible-Empty-Shell-Slice.</p>
+</body>
+</html>

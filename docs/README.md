@@ -17,6 +17,7 @@ the same commit.
 | Engineering | [Build and quality contract](engineering/build-and-quality.md) | [Build and quality contract](engineering/build-and-quality.html) | Accepted |
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
 | Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented tracer |
+| Architecture | [Feed discovery tracer bullet](architecture/feed-discovery-tracer.md) | [Feed discovery tracer bullet](architecture/feed-discovery-tracer.html) | Implemented tracer |
 | Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |
 
 ## Status vocabulary
