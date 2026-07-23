@@ -14,12 +14,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.smponi.reader.core.designsystem.LocalReaderDesignSystem
 import com.smponi.reader.core.designsystem.ReaderTheme
 import com.smponi.reader.feature.discovery.FeedDiscoveryFeature
+import com.smponi.reader.feature.discovery.FeedDiscoveryOutcome
 import com.smponi.reader.feature.onboarding.OnboardingFeature
 import com.smponi.reader.feature.onboarding.OnboardingOutcome
 
 @Composable
 @Preview
-fun App(onOnboardingOutcome: (OnboardingOutcome) -> Unit = {}) {
+fun App(
+    onOnboardingOutcome: (OnboardingOutcome) -> Unit = {},
+    onFeedDiscoveryOutcome: (FeedDiscoveryOutcome) -> Unit = {},
+) {
     ReaderTheme {
         val designSystem = LocalReaderDesignSystem.current
         var discoveryOutcome by remember { mutableStateOf<OnboardingOutcome.FollowWebsite?>(null) }
@@ -40,6 +44,7 @@ fun App(onOnboardingOutcome: (OnboardingOutcome) -> Unit = {}) {
             } else {
                 FeedDiscoveryFeature(
                     outcome = outcome,
+                    onCandidateSelected = onFeedDiscoveryOutcome,
                     onEditWebsite = { discoveryOutcome = null },
                 )
             }
