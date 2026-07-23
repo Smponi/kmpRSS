@@ -15,8 +15,12 @@ sealed interface FeedDiscoveryState {
     /** The website is ready for its feed links to be discovered. */
     data class Discovering(override val website: String) : FeedDiscoveryState
 
-    /** Feed links declared by the website are ready for the next subscription slice. */
-    data class Found(override val website: String, val candidates: List<FeedCandidate>) : FeedDiscoveryState
+    /** Feed links declared by the website and the caller's explicit selection, if any. */
+    data class Found(
+        override val website: String,
+        val candidates: List<FeedCandidate>,
+        val selectedCandidate: FeedCandidate? = null,
+    ) : FeedDiscoveryState
 
     /** The website loaded successfully but did not advertise a supported feed. */
     data class NoFeeds(override val website: String) : FeedDiscoveryState
@@ -27,6 +31,12 @@ sealed interface FeedDiscoveryState {
 
 /** One feed advertised by the requested website. */
 data class FeedCandidate(val title: String, val url: String)
+
+/** Observable handoffs emitted after feed discovery. */
+sealed interface FeedDiscoveryOutcome {
+    /** One advertised feed was explicitly selected by the caller. */
+    data class CandidateSelected(val website: String, val candidate: FeedCandidate) : FeedDiscoveryOutcome
+}
 
 internal sealed interface FeedDiscoveryResult {
     data class Found(val candidates: List<FeedCandidate>) : FeedDiscoveryResult
@@ -68,6 +78,22 @@ class FeedDiscovery internal constructor(initialState: FeedDiscoveryState, priva
         } catch (_: Exception) {
             FeedDiscoveryState.Failed(website)
         }
+    }
+
+    /**
+     * Selects one currently advertised candidate and returns the handoff for the next feature slice.
+     *
+     * Stale or unrelated candidates are ignored so discovery never guesses on behalf of the caller.
+     */
+    fun select(candidate: FeedCandidate): FeedDiscoveryOutcome.CandidateSelected? {
+        val found = state as? FeedDiscoveryState.Found ?: return null
+        if (candidate !in found.candidates) return null
+
+        state = found.copy(selectedCandidate = candidate)
+        return FeedDiscoveryOutcome.CandidateSelected(
+            website = found.website,
+            candidate = candidate,
+        )
     }
 
     /** Releases the platform HTTP client owned by this discovery session. */

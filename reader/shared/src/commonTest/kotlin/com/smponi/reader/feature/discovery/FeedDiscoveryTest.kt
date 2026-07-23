@@ -50,6 +50,39 @@ class FeedDiscoveryTest {
     }
 
     @Test
+    fun `caller selects one of several candidates without discovery guessing`() = runTest {
+        val candidates = listOf(
+            FeedCandidate(title = "Articles", url = "https://example.com/articles.xml"),
+            FeedCandidate(title = "Notes", url = "https://example.com/notes.xml"),
+        )
+        val discovery = beginFeedDiscovery(
+            outcome = OnboardingOutcome.FollowWebsite("example.com"),
+            source = FeedDiscoverySource {
+                FeedDiscoveryResult.Found(candidates)
+            },
+        )
+
+        discovery.discover()
+
+        assertEquals(null, (discovery.state as FeedDiscoveryState.Found).selectedCandidate)
+        assertEquals(
+            FeedDiscoveryOutcome.CandidateSelected(
+                website = "https://example.com",
+                candidate = candidates[1],
+            ),
+            discovery.select(candidates[1]),
+        )
+        assertEquals(
+            FeedDiscoveryState.Found(
+                website = "https://example.com",
+                candidates = candidates,
+                selectedCandidate = candidates[1],
+            ),
+            discovery.state,
+        )
+    }
+
+    @Test
     fun `normal website exposes its advertised feed`() = runTest {
         val client = HttpClient(
             MockEngine {
