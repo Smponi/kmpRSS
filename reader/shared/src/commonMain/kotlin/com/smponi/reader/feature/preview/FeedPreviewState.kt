@@ -8,10 +8,7 @@ import com.smponi.reader.feature.discovery.FeedDiscoveryOutcome
  *
  * Article data is deliberately absent until a later feed-loading slice can provide real entries.
  */
-data class FeedPreviewState(
-    val website: String,
-    val candidate: FeedCandidate,
-)
+data class FeedPreviewState(val website: String, val candidate: FeedCandidate)
 
 /** Consumes the exact candidate-selection handoff without fetching, parsing or persisting anything. */
 fun openFeedPreview(outcome: FeedDiscoveryOutcome.CandidateSelected): FeedPreviewState = FeedPreviewState(
