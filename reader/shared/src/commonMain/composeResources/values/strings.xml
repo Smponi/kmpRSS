@@ -19,6 +19,16 @@
 
     <string name="navigation_back">Zurück</string>
 
+    <string name="feed_preview_android_title">Feed-Vorschau</string>
+    <string name="feed_preview_android_intro">Prüfe die Angaben, die diese Website bereitgestellt hat.</string>
+    <string name="feed_preview_ios_title">Vorschau</string>
+    <string name="feed_preview_ios_intro">Diese Angaben stammen von der ausgewählten Website.</string>
+    <string name="feed_preview_website_label">Website</string>
+    <string name="feed_preview_feed_address_label">Feed-Adresse</string>
+    <string name="feed_preview_no_articles_title">Keine Artikeldaten verfügbar</string>
+    <string name="feed_preview_no_articles_body">Diese schmale Vorschau zeigt nur die bereits gefundenen Feed-Angaben.</string>
+    <string name="feed_preview_edit_selection">Auswahl bearbeiten</string>
+
     <string name="home_title">Home</string>
     <string name="home_intro">Dein Leseraum</string>
     <string name="home_intro_supporting">Alles, was du bewusst gewählt hast – ohne Empfehlungen dazwischen.</string>

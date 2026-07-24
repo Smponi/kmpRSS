@@ -19,6 +19,7 @@ the same commit.
 | Architecture | [Platform experience foundation](architecture/platform-foundation.md) | [Platform experience foundation](architecture/platform-foundation.html) | Accepted |
 | Architecture | [Onboarding tracer bullet](architecture/onboarding-tracer.md) | [Onboarding tracer bullet](architecture/onboarding-tracer.html) | Implemented and integrated |
 | Architecture | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.md) | [Feed discovery and candidate selection](architecture/feed-discovery-tracer.html) | Implemented and integrated |
+| Architecture | [Read-only feed preview](architecture/feed-preview-tracer.md) | [Read-only feed preview](architecture/feed-preview-tracer.html) | Implemented |
 | Architecture | [Home shell tracer](architecture/home-shell-tracer.md) | [Home shell tracer](architecture/home-shell-tracer.html) | Implemented and integrated |
 | Architecture | [App navigation integration](architecture/app-navigation-integration.md) | [App navigation integration](architecture/app-navigation-integration.html) | Implemented integration slice |
 | Agents | [Foundation playbook](agents/foundation-playbook.md) | [Foundation playbook](agents/foundation-playbook.html) | Accepted |

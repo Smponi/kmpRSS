@@ -1,7 +1,7 @@
 # Feed discovery and candidate-selection tracer
 
-- **Status:** Implemented and navigation-integrated candidate-selection handoff; feed preview and subscription remain open
-- **Last updated:** 2026-07-23
+- **Status:** Implemented, navigation integrated and consumed by the read-only feed-preview tracer
+- **Last updated:** 2026-07-24
 - **Scope:** Real discovery plus the smallest explicit candidate-selection handoff for `PRD-001` and `PRD-011`,
   connected directly from `PRD-013`
 - **Product constraints:** [Core product](../product/core-product.md),
@@ -53,14 +53,16 @@ presenting a false failure.
 
 `Found` always begins with `selectedCandidate = null`, even when the website
 advertises exactly one feed. Selecting a row is the explicit user decision and
-simultaneously emits the small handoff for a later preview slice. This keeps the
+simultaneously emits the small handoff consumed by the
+[read-only preview](feed-preview-tracer.md). This keeps the
 single- and multi-candidate paths identical, makes the selected state observable
 when the caller remains on the screen, and prevents discovery from guessing among
 multiple declarations.
 
-`App` forwards `FeedDiscoveryOutcome` through its public callback. This slice does
-not consume the outcome, navigate, fetch the feed, render a preview or persist a
-subscription.
+`App` still forwards `FeedDiscoveryOutcome` through its public callback. The
+feature also passes that exact outcome to `openFeedPreview`, renders the local
+candidate metadata and keeps its `Found` state alive for Edit Selection. It does
+not add a route, fetch or parse the feed, or persist a subscription.
 
 ## Discovery behaviour in this tracer
 
@@ -91,11 +93,12 @@ typed Discovery key and renders `FeedDiscoveryFeature`. Edit Website pops that
 key to reveal the appropriate existing entry. Explicit selection still leaves
 the stack unchanged and is forwarded through the separate
 `onFeedDiscoveryOutcome` callback. The feature owns only local discovery and
-selection state and receives neither a navigator nor a back stack.
+selection state, switches locally to the preview renderer after the public
+handoff is consumed, and receives neither a navigator nor a back stack.
 
 | Source set | Ownership | Platform contract |
 |---|---|---|
-| `commonMain/feature/discovery` | Session, states, explicit selection/outcome, candidate meaning, Ktor response interpretation, feature lifecycle and renderer seam | No Material or Apple component chrome; no feed preview or subscription pipeline |
+| `commonMain/feature/discovery` | Session, states, explicit selection/outcome, candidate meaning, Ktor response interpretation, feature lifecycle and local preview-mode handoff | No Material or Apple component chrome; no preview implementation or subscription pipeline |
 | `androidMain/feature/discovery` | Material 3 result and single-choice screen | Semantic theme roles, expressive type/list treatment, tonal selected state, radio semantics and at least 48dp candidate targets |
 | `iosMain/feature/discovery` | Apple-native-in-spirit result and single-choice screen | Compose Foundation, Apple semantic tokens, opaque rounded rows, checkmark plus selected semantics and 52dp candidate targets; no `MaterialTheme` or fake glass |
 | `androidApp` | Android capability declaration | `INTERNET` is a normal install-time capability, not a runtime permission prompt |
@@ -175,12 +178,14 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
 Canonical repository gates remain defined in
 [Build and quality contract](../engineering/build-and-quality.md).
 
-## Next smallest test-first slice
+## Subsequent smallest test-first slice
 
-Consume `FeedDiscoveryOutcome.CandidateSelected` in the smallest feed-preview
-slice: fetch and show only enough feed identity and recent-entry evidence for the
-person to decide whether to follow it, with actionable failure recovery. Do not
-persist a subscription, add tags or notifications, build a complete ingestion
-pipeline or introduce a full navigation graph in advance.
+The [read-only preview tracer](feed-preview-tracer.md) now consumes
+`FeedDiscoveryOutcome.CandidateSelected` using only local candidate metadata.
+Next, add an injectable read-only preview source with explicit
+Loading/Available/Failed behaviour and only enough real feed-provided identity or
+recent-entry evidence to replace its honest no-data state. Do not persist a
+subscription, add tags or notifications, fetch original pages, build a complete
+ingestion pipeline or introduce a full navigation graph in advance.
 `OnboardingOutcome.UseApp` is now connected to the accessible Home shell by the
 separate app-navigation integration.
