@@ -25,7 +25,7 @@
   <p class="lead"><code>AppNavigation</code> verbindet Onboarding, die datenfreie Home-Shell und bestehende Feed Discovery über einen autoritativen <code>NavBackStack&lt;AppNavKey&gt;</code> in <code>commonMain</code>.</p>
   <p><strong>Status 23.07.2026:</strong> Integrations-Slice implementiert. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
 
-  <div class="flow" aria-label="Graph: Feature Outcomes werden zu AppNavigation Events. AppNavigation mutiert einen typed Navigation 3 Back Stack. Ein exhaustiver Provider rendert ihn mit Android NavDisplay oder dem iOS Apple Adapter. CandidateSelected bleibt extern.">
+  <div class="flow" aria-label="Graph: Feature Outcomes werden zu AppNavigation Events. AppNavigation mutiert einen typed Navigation 3 Back Stack. Ein exhaustiver Provider rendert ihn mit Android NavDisplay oder dem iOS Apple Adapter. CandidateSelected bleibt extern beobachtbar und öffnet lokal die read-only Preview im bestehenden Discovery Entry.">
     <div class="node"><strong>Features</strong>Onboarding · Home · Discovery</div>
     <div class="node"><strong>Typed events</strong><code>AppNavigationEvent</code></div>
     <div class="node accent"><strong>Shared runtime</strong><code>NavBackStack&lt;AppNavKey&gt;</code></div>
@@ -41,7 +41,7 @@
     <tr><td>Stack</td><td>Shared Entry Provider</td><td>Sealed, exhaustives <code>when</code>; kein paralleles Destination-Enum.</td></tr>
     <tr><td>Provider</td><td>Android</td><td><code>NavDisplay</code> samt Android Back/Predictive Back.</td></tr>
     <tr><td>Provider</td><td>iOS</td><td>Top-Entry desselben Stacks, iOS Back Dispatcher und opake Apple-nahe Back Bar.</td></tr>
-    <tr><td><code>CandidateSelected</code></td><td>Externer Caller</td><td>Keine Stack-Mutation und keine erfundene Feed Preview.</td></tr>
+    <tr><td><code>CandidateSelected</code></td><td>Externer Caller + lokale Preview</td><td>Keine Stack-Mutation; der Discovery Entry konsumiert den Handoff als lokalen read-only Preview-State.</td></tr>
   </tbody></table>
 
   <h2>Keys und deterministische Stack-Regeln</h2>
@@ -55,7 +55,7 @@
     <tr><td><code>[Home, Onboarding]</code> + UseApp</td><td><code>[Home]</code></td><td>Kein Home-Duplikat.</td></tr>
     <tr><td>Back oberhalb Root</td><td>Ein Entry poppen</td><td>Gemeinsame hierarchische Bedeutung.</td></tr>
     <tr><td>Back am Root</td><td><code>AtRoot</code>, unverändert</td><td>Plattform darf App verlassen/dismiss.</td></tr>
-    <tr><td>CandidateSelected</td><td><code>External</code>, unverändert</td><td>Feed Preview bleibt eigener Slice.</td></tr>
+    <tr><td>CandidateSelected</td><td><code>External</code>, unverändert</td><td>Callback erhalten; der bestehende Discovery Entry rendert seinen lokalen read-only Preview-Modus.</td></tr>
   </tbody></table>
   <p class="must">Ein leerer Initial-Stack ist ungültig. Edit Website poppt ausschließlich eine aktuelle Discovery. UseApp kürzt zu einem vorhandenen Home oder ersetzt sonst den Stack durch genau ein Home.</p>
 
@@ -93,6 +93,6 @@ ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
   <p>Alle kanonischen Gates stehen im <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
 
   <h2>Scope-Grenze</h2>
-  <p>Keine Feed Preview, Subscription-Persistenz, Tags-Logik, Notifications, Settings, Permissions, Datenbank- oder Netzwerkänderung. Discovery bleibt unverändert real; <code>CandidateSelected</code> bleibt der Handoff für den nächsten Preview-Tracer. Keine neue Onboarding-Sequenz.</p>
+  <p>Dieser Navigations-Slice ergänzt weiterhin keinen Preview-Key, keine Subscription-Persistenz, Tags-Logik, Notifications, Settings, Permissions, Datenbank- oder Preview-Netzwerkänderung. Discovery bleibt unverändert real; <code>CandidateSelected</code> bleibt der Seam, den der separate <a href="feed-preview-tracer.html">read-only Preview-Tracer</a> innerhalb des aktuellen Discovery Entry konsumiert. Keine neue Onboarding-Sequenz und kein zweites Routemodell.</p>
 </body>
 </html>

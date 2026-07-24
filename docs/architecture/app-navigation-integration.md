@@ -26,6 +26,7 @@ flowchart LR
     P --> A[Android NavDisplay]
     P --> I[iOS Apple adapter]
     D --> X[External CandidateSelected handoff]
+    D --> V[Local read-only preview mode]
 ```
 
 | From | To | Contract |
@@ -36,7 +37,7 @@ flowchart LR
 | Back stack | Shared entry provider | A sealed exhaustive `when` resolves every concrete key without another destination model. |
 | Entry provider | Android | `NavDisplay` renders the authoritative stack and owns Android back/predictive-back integration. |
 | Entry provider | iOS | A Compose Foundation adapter renders `backStack.last()` and uses the iOS back dispatcher plus an opaque Apple-style back bar. |
-| `CandidateSelected` | External caller | Return the existing handoff without changing the stack or inventing feed preview. |
+| `CandidateSelected` | External caller and local preview | Return the existing handoff without changing the stack; the discovery entry consumes it as local read-only preview state. |
 
 ## Key and stack contract
 
@@ -60,7 +61,7 @@ flowchart LR
 | `[Home, Onboarding]` + `UseApp` | `[Home]` | Pop to the existing Home instead of adding a duplicate. |
 | Back with more than one entry | pop one | Both platforms share deterministic hierarchical back. |
 | Back at one root entry | `AtRoot`, no mutation | The platform remains free to exit/dismiss the app at its root. |
-| `CandidateSelected` | `External(outcome)`, no mutation | Feed preview is a separate future slice. |
+| `CandidateSelected` | `External(outcome)`, no mutation | Preserve the callback while the existing Discovery entry renders its local read-only preview mode. |
 
 `EditWebsite` only pops when Discovery is actually on top. `UseApp` truncates to
 an existing Home when present; otherwise it replaces the current stack with one
@@ -147,7 +148,9 @@ remain defined in [Build and quality contract](../engineering/build-and-quality.
 
 ## Scope boundary
 
-This slice adds no feed preview, subscription persistence, tags behaviour,
-notifications, settings, permissions, database or network change. Discovery
-still performs the existing request and `CandidateSelected` remains the seam for
-the next feed-preview tracer. There is no new onboarding sequence.
+This navigation slice still adds no preview key, subscription persistence, tags
+behaviour, notifications, settings, permissions, database or preview-network
+change. Discovery performs its existing request and `CandidateSelected` remains
+the seam consumed by the separate
+[read-only preview tracer](feed-preview-tracer.md) inside the current Discovery
+entry. There is no new onboarding sequence or second route model.

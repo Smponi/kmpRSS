@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kmpRSS · Read-only feed preview</title>
+  <style>
+    :root { color-scheme:light dark; --accent:#376f5d; --soft:color-mix(in srgb,Canvas 93%,var(--accent)); --line:color-mix(in srgb,CanvasText 18%,transparent); }
+    body { margin:0 auto; max-width:1120px; padding:42px 24px 76px; background:Canvas; color:CanvasText; font:15px/1.5 system-ui,sans-serif; }
+    h1 { margin:.12em 0; max-width:14ch; font-size:clamp(2.4rem,7vw,5.2rem); line-height:.94; letter-spacing:-.055em; }
+    h2 { margin-top:2.2em; } h3 { margin-bottom:.35em; } .eyebrow { color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:.11em; }
+    .lead { max-width:76ch; font-size:1.2rem; } .flow { display:grid; grid-template-columns:repeat(5,minmax(150px,1fr)); gap:10px; margin:24px 0; }
+    .node,.card { border:1px solid var(--line); border-radius:20px; padding:18px; background:var(--soft); }
+    .accent { border:2px solid var(--accent); } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(245px,1fr)); gap:14px; }
+    table { width:100%; border-collapse:collapse; } th,td { border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; }
+    code { font-family:ui-monospace,monospace; } .must { border-left:5px solid var(--accent); padding:12px 16px; background:var(--soft); }
+    li+li { margin-top:.42em; } a { color:var(--accent); } @media (max-width:850px) { .flow { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">PRD-001 · PRD-011 · PRD-014</p>
+  <h1>Echte Metadaten. Keine erfundenen Artikel.</h1>
+  <p class="lead"><code>openFeedPreview(CandidateSelected)</code> konsumiert exakt den öffentlichen Discovery-Handoff und zeigt nur Website, Candidate-Titel und Feed-URL. Es gibt keinen Fetch, Parser, Entry-State oder Subscribe-Button.</p>
+  <p><strong>Status 24.07.2026:</strong> implementiert. Scope: lokal vorhandene Candidate-Metadaten. Grundlagen: <a href="../product/core-product.html">Core product</a>, <a href="../adr/0001-v1-product-foundation.html">ADR-0001</a> und <a href="../adr/0002-localization-and-navigation.html">ADR-0002</a>.</p>
+
+  <div class="flow" aria-label="CandidateSelected fließt zu openFeedPreview und FeedPreviewState. Derselbe State wird von Android Material 3 oder iOS Apple Renderer dargestellt. Edit selection kehrt zum bestehenden Found State zurück.">
+    <div class="node"><strong>CandidateSelected</strong><p>Website + gewählter Candidate</p></div>
+    <div class="node accent"><strong>openFeedPreview</strong><p>Öffentlicher Seam für Caller und Test</p></div>
+    <div class="node"><strong>FeedPreviewState</strong><p>Keine Article-Collection</p></div>
+    <div class="node"><strong>Platform renderer</strong><p>Material 3 oder Apple Foundation</p></div>
+    <div class="node"><strong>Edit selection</strong><p>Zurück zum bestehenden Found-State</p></div>
+  </div>
+
+  <h2>Interface und Datenwahrheit</h2>
+  <table><thead><tr><th>Von</th><th>Nach</th><th>Vertrag</th></tr></thead><tbody>
+    <tr><td><code>CandidateSelected</code></td><td><code>openFeedPreview</code></td><td>Exakten öffentlichen Handoff konsumieren; nicht fetchen, parsen oder persistieren.</td></tr>
+    <tr><td><code>openFeedPreview</code></td><td><code>FeedPreviewState</code></td><td>Website, Candidate-Titel und Candidate-URL erhalten; keine Article-Evidenz erfinden.</td></tr>
+    <tr><td>State</td><td>Android</td><td>Material-3-Semantik und expressive tonale Hierarchie.</td></tr>
+    <tr><td>State</td><td>iOS</td><td>Apple-nahe gruppierte opake Flächen; kein Blur als falsches Liquid Glass.</td></tr>
+    <tr><td>Beide Renderer</td><td>Edit selection</td><td>Lokal zum bestehenden <code>FeedDiscoveryState.Found</code>; Discovery nicht neu starten.</td></tr>
+  </tbody></table>
+  <p>Preview ist ein lokaler Modus im bestehenden typed <code>AppNavKey.FeedDiscovery</code>. Candidate selection verändert den Navigation-3-Stack weiterhin nicht; der vorhandene externe Callback bleibt beobachtbar. Ein neuer Key müsste Remote-Displaytext tragen oder einen zweiten nicht restaurierbaren Store erzeugen. Beides bleibt bewusst aus dem Slice.</p>
+
+  <h2>Ownership und Plattformen</h2>
+  <div class="grid">
+    <section class="card"><p class="eyebrow">commonMain · preview</p><h3>Stabile Bedeutung</h3><p>Immutable State, öffentlicher Handoff-Konsum und Renderer-Seam. Kein Netzwerk, Feed-Parsing, Entries, Subscription-State oder Plattform-Chrome.</p></section>
+    <section class="card"><p class="eyebrow">commonMain · discovery</p><h3>Session bleibt lebendig</h3><p>Der ausgewählte Found-State bleibt während Preview erhalten. Keine Preview-Optik und kein neues Routemodell.</p></section>
+    <section class="card"><p class="eyebrow">Android</p><h3>Material 3 Expressive</h3><p>Semantische Color-/Type-Rollen, tonale Cards und 56dp Filled Tonal Edit Action. Keine rohen Theme-Farben.</p></section>
+    <section class="card"><p class="eyebrow">iOS</p><h3>Honest opaque fallback</h3><p>Compose Foundation, Apple-Tokens, runde gruppierte Flächen und 52dp Text Action. Kein <code>MaterialTheme</code>, Fake Glass oder zweiter Route Graph.</p></section>
+  </div>
+  <p>Keine neue Dependency. Sämtliche app-eigene sichtbare und assistive Preview-Copy stammt aus Compose Resources. Website, Titel und URLs sind unveränderte Remote-Daten.</p>
+
+  <h2>Accessibility</h2>
+  <ul>
+    <li>Breitenbegrenzte, vertikal scrollbare Layouts reflowen mit Dynamic Type, Android Font Scaling, Landscape und schmalen Fenstern.</li>
+    <li>Die Preview-Überschrift erhält Heading-Semantik und Fokus beim Eintritt in den lokalen Modus.</li>
+    <li>Candidate-Metadaten sind sinnvoll gruppiert; Website und Feed-Adresse behalten sichtbare Labels. Titel und URLs sind Text statt icon-only Cues.</li>
+    <li>„Keine Artikeldaten verfügbar“ unterscheidet fehlende Evidenz von einem leeren Feed. Keine erfundenen Rows, Counts, Dates, Authors oder Summaries.</li>
+    <li>Android nutzt korrekte <code>MaterialTheme</code>-Tonpaare und 56dp Action. iOS nutzt Apple-Tokens, opake Gruppen und 52dp Action.</li>
+    <li>Aktionen sind über Plattformkomponenten oder explizite Focus-Semantik keyboard-/switch-fokussierbar. Farbe trägt nie allein Bedeutung.</li>
+  </ul>
+  <p class="must"><strong>Manuelle Release-Checks:</strong> TalkBack-/VoiceOver-Reihenfolge, größte Schrift, lange ungebrochene Remote-URLs, erhöhter Kontrast, Switch/Keyboard, Rotation, reale Touch Targets und iOS-Navigation-Bar-Interaktion. Compiler und Semantik beweisen das nicht.</p>
+
+  <h2>TDD und Verifikation</h2>
+  <ol>
+    <li><strong>RED:</strong> <code>candidate handoff becomes preview without inventing article data</code> scheiterte, weil <code>openFeedPreview</code> und <code>FeedPreviewState</code> fehlten.</li>
+    <li><strong>GREEN:</strong> Die minimale immutable Projection bewahrte Website und Candidate; derselbe Test bestand.</li>
+  </ol>
+  <pre><code>ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:testAndroidHostTest \
+  --tests 'com.smponi.reader.feature.preview.FeedPreviewTest'
+ANDROID_HOME=/Users/philipp/Library/Android/sdk ./gradlew \
+  :shared:compileAndroidMain :shared:compileKotlinIosSimulatorArm64</code></pre>
+  <p>Kanonische Format-, Lint-, Android-Debug/Release/R8-, iOS-Test/Xcode- und Dokumentations-Gates: <a href="../engineering/build-and-quality.html">Build and quality contract</a>.</p>
+
+  <h2>Scope und nächster Slice</h2>
+  <p class="must">Kein Feed-Request, XML-Parser, Entry-/Article-Modell, Original-Page-Fetch, Subscription-Persistenz, Tags, Notifications, Settings, Permissions, Sync oder Home-Inhalt. Home bleibt funktional leer.</p>
+  <p><strong>Nächster kleinster Test-first Slice:</strong> eine injizierbare, read-only Preview-Source für die gewählte Feed-URL mit explizitem Loading/Available/Failed. Sie darf nur genug echte feed-provided Identity oder Recent-Entry-Evidenz interpretieren, um den ehrlichen No-data-State zu ersetzen. Retry/Edit bleiben; kein Subscribe, Persistieren, Original-Page-Fetch oder vollständige Ingestion-Pipeline.</p>
+</body>
+</html>
